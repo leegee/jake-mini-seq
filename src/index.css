@@ -1,0 +1,36 @@
+:root {
+    --borders: #aae;
+}
+
+main {
+    -webkit-overflow-scrolling: touch;
+    overflow-scrolling: touch;
+    border: 3px solid var(--borders);
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+}
+
+section {
+    border: 2px double var(--borders);
+    display: inline-block;
+}
+
+div {
+    border: 1px dashed  var(--borders);
+    display: inline-block;
+}
+
+.octave {
+    border: 1px solid var(--borders);
+}
+
+span {
+    margin: 1pt;
+    border: 1px dotted  var(--borders);
+    display: block;
+    width: 4vw;
+    height: 2vh;
+    overflow: hidden;
+    font-size: 8pt;
+}
