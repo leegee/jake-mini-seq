@@ -30,7 +30,7 @@ function makeGrid() {
                 for (let note=0; note < config.scales[config.scale].length; note ++) {
                     const $note = document.createElement('span');
                     $octave.appendChild($note);
-                    $note.innerText = `${bar} ${divInBar} ${note}`;
+                    $note.innerText = `${bar}:${divInBar} ${octave}/${note}`;
                 }
                 $div.appendChild($octave);
             }

@@ -12,6 +12,7 @@ main {
 }
 
 section {
+    flex: 0 0 auto;
     border: 2px double var(--borders);
     display: inline-block;
 }
@@ -23,13 +24,14 @@ div {
 
 .octave {
     border: 1px solid var(--borders);
+    display: block;
 }
 
 span {
     margin: 1pt;
     border: 1px dotted  var(--borders);
     display: block;
-    width: 4vw;
+    width: 6vw;
     height: 2vh;
     overflow: hidden;
     font-size: 8pt;
