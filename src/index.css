@@ -1,16 +1,19 @@
 :root {
-    --borders: #aae;
-    --noteBg: #99e;
-    --beatBg: #cec;
+    --borders: hsla(283, 28%, 50%, .5);
+    --noteBg: hsla(27, 90%, 50%, 1);
+    --beatBg: hsla(283, 28%, 50%, .5);
     --ctrlBg: #66a;
+
+    background: hsl(295, 71%, 22%);
+    color: white;
 }
 
 main {
     -webkit-overflow-scrolling: touch;
-    border: 3px solid var(--borders);
+    /* border: 3px solid var(--borders); */
     display: flex;
     flex-wrap: nowrap;
-    overflow-x: auto;
+    overflow: auto;
 }
 
 section.bar {
@@ -37,7 +40,7 @@ span {
     margin: 1pt;
     border: 1px dotted var(--borders);
     display: block;
-    width: 6vw;
+    width: 2vw;
     height: 2vh;
     overflow: hidden;
     font-size: 8pt;
@@ -49,6 +52,7 @@ span {
 
 .note.play {
     background: var(--noteBg);
+    border-radius: 30%;
 }
 
 .currentBeat {

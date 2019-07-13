@@ -10,7 +10,7 @@ const Config = {
     velocity: 127,
     durationMs: 200,
     rootOctave: 3,
-    octaves: 2,
+    octaves: 4,
     scale: 'major',
     scales: {
         major: [
@@ -18,7 +18,7 @@ const Config = {
         ]
     },
     notesPerBar: 4,
-    totalBars: 4
+    totalBars: 8
 }
 
 const Ctrls = {
