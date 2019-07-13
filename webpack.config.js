@@ -1,5 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   entry: './src/index.js',
@@ -13,7 +14,12 @@ module.exports = {
     port: 9000
   },
   plugins: [
-    new HtmlWebpackPlugin()
+    new HtmlWebpackPlugin(),
+    new CopyPlugin([
+      {from: 'assets/soundfont/acoustic_grand_piano-mp3/**'},
+      {from: 'assets/soundfont/acoustic_grand_piano-mp3.js', to: 'assets/soundfont/acoustic_grand_piano-mp3.js'},
+      {from: 'assets/soundfont/acoustic_grand_piano-ogg.js', to: 'assets/soundfont/acoustic_grand_piano-ogg.js'}
+    ]),
   ],
 
   module: {
