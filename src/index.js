@@ -10,8 +10,12 @@ class JakesMiniSeq {
     static dataUriPrefix = 'data:text/plain;base64,';
     scale = 'major';
     tempoMs = 200;
+    instrument = 'acoustic_grand_piano';
+    notesPerBar = 4;
+    totalBars = 8;
     config = {
-        soundsDir: './assets/soundfont/acoustic_grand_piano-mp3/',
+        soundsDir: './assets/soundfont/',
+        instrumentSuffix: '-mp3',
         delay: 0,
         velocity: 127,
         rootOctave: 3,
@@ -20,9 +24,7 @@ class JakesMiniSeq {
             major: [
                 'C', 'D', 'E', 'F', 'G', 'A', 'B'
             ]
-        },
-        notesPerBar: 4,
-        totalBars: 8
+        }
     };
     note = {
         size: {
@@ -52,28 +54,15 @@ class JakesMiniSeq {
         ctx: undefined,
         music: []
     };
-    ctrls = { playCtrl: null };
+    ctrls = { 
+        playCtrl: null,
+    };
     scrollWrapper;
     sounds = {};
     loopIntervalId;
 
     constructor() {
-        this.score.music = new Array(this.config.totalBars * this.config.notesPerBar);
-
-        this.scrollWrapper = document.createElement('section');
-        this.scrollWrapper.setAttribute('id', 'scroll-wrapper');
-
-        this.score.canvas = document.createElement('canvas');
-        this.score.canvas.setAttribute('id', 'score');
-        this.score.ctx = this.score.canvas.getContext('2d');
-
-        this.note.canvas = document.createElement('canvas');
-        this.note.canvas.setAttribute('id', 'notes');
-        this.note.ctx = this.note.canvas.getContext('2d');
-
-        this.tick.canvas = document.createElement('canvas');
-        this.tick.canvas.setAttribute('id', 'tick');
-        this.tick.ctx = this.tick.canvas.getContext('2d');
+        this.score.music = new Array(this.totalBars * this.notesPerBar);
     }
 
     run() {
@@ -91,16 +80,37 @@ class JakesMiniSeq {
                 console.debug('Loading oct %d note %d :', octave, note, noteName);
                 this.sounds[noteName] = new Howl({
                     src: [
-                        this.config.soundsDir + '/' + noteName + '.mp3'
+                        this.config.soundsDir + '/' + 
+                            this.instrument + this.config.instrumentSuffix + '/' + 
+                            noteName + '.mp3'
                     ]
                 });
             }
         }
     }
 
+    removeCanvas() {
+        this.scrollWrapper.parentNode.removeChild(this.scrollWrapper);
+    }
+
     makeCavnas() {
+        this.scrollWrapper = document.createElement('section');
+        this.scrollWrapper.setAttribute('id', 'scroll-wrapper');
+
+        this.score.canvas = document.createElement('canvas');
+        this.score.canvas.setAttribute('id', 'score');
+        this.score.ctx = this.score.canvas.getContext('2d');
+
+        this.note.canvas = document.createElement('canvas');
+        this.note.canvas.setAttribute('id', 'notes');
+        this.note.ctx = this.note.canvas.getContext('2d');
+
+        this.tick.canvas = document.createElement('canvas');
+        this.tick.canvas.setAttribute('id', 'tick');
+        this.tick.ctx = this.tick.canvas.getContext('2d');
+
         this.tick.canvas.width = this.note.canvas.width = this.score.canvas.width =
-            this.note.size.x * this.config.totalBars * this.config.notesPerBar;
+            this.note.size.x * this.totalBars * this.notesPerBar;
         
         this.tick.canvas.height = this.note.canvas.height = this.score.canvas.height 
             = this.note.size.y * this.config.totalOctaves * this.config.scales[this.scale].length;
@@ -120,12 +130,12 @@ class JakesMiniSeq {
         let x = 0;
         let beatIndex = 0;
 
-        for (let bar = 0; bar < this.config.totalBars; bar++) {
-            for (let beatInBar = 0; beatInBar < this.config.notesPerBar; beatInBar++) {
-                this.score.music[beatIndex] = {};
+        for (let bar = 0; bar < this.totalBars; bar++) {
+            for (let beatInBar = 0; beatInBar < this.notesPerBar; beatInBar++) {
+                this.score.music[beatIndex] = this.score.music[beatIndex] || {};
                 this.score.ctx.beginPath();
                 this.score.ctx.strokeStyle = "white";
-                if (beatIndex % this.config.notesPerBar === 0 && beatIndex !== 0) {
+                if (beatIndex % this.notesPerBar === 0 && beatIndex !== 0) {
                     this.score.ctx.lineWidth = 2;
                 } else {
                     this.score.ctx.lineWidth = 1;
@@ -175,9 +185,34 @@ class JakesMiniSeq {
         <span id='play-ctrl' class='paused'></span>
         <span id='save-ctrl'>💾</span>
         <input type='range' id='tempo-ms' min=10 max=1000 step=25 value=${this.tempoMs}>
+        <select id='instrument-ctrl'>
+            <option value='acoustic_grand_piano'>Piano</option>
+            <option value='X'>X</option>
+        </select>
+        <select id='total-bars-ctrl'>
+            <option value='4'>4</option>
+            <option value='8'>8</option>
+            <option value='12'>12</option>
+            <option value='24'>24</option>
+        </select>
+        
         `;
         document.body.appendChild(ctrls);
         this.ctrls.playCtrl = document.getElementById('play-ctrl');
+        
+        document.getElementById('instrument-ctrl').addEventListener('change', (e) => {
+            this.instrument = e.target.options[e.target.selectedIndex].value;
+            this.loadSounds();
+        });
+        
+        const tbc = document.getElementById('total-bars-ctrl');
+        tbc.addEventListener('change', (e) => {
+            this.totalBars = e.target.options[e.target.selectedIndex].value;
+            this.removeCanvas();
+            this.makeCavnas();
+            this.renderScore();
+        });
+        tbc.value = this.totalBars;
 
         ctrls.addEventListener('click', (e) => {
             if (e.target.classList.contains('playing')) {
@@ -191,7 +226,8 @@ class JakesMiniSeq {
             }
             else if (e.target.id === 'rewind-ctrl') {
                 this.rewindLoop();
-            } else if (e.target.id === 'tempo-ms') {
+            } 
+            else if (e.target.id === 'tempo-ms') {
                 console.log(e.target.value)
                 this.tempoMs = Number(e.target.value);
                 this.stopLoop();
@@ -276,7 +312,8 @@ class JakesMiniSeq {
     }
 
     nextTick() {
-        if (this.tick.now > 4 && this.tick.now  < this.score.music.length - 4) {
+        const lengthToPlay = this.totalBars * this.notesPerBar; // this.score.music.length;
+        if (this.tick.now > 4 && this.tick.now  < lengthToPlay - 4) {
             this.scrollWrapper.scrollBy({
                 left: this.note.size.x,
                 top: 0,
@@ -308,7 +345,7 @@ class JakesMiniSeq {
         this.tick.previous = this.tick.now;
 
         this.tick.now++;
-        if (this.tick.now >= this.score.music.length) {
+        if (this.tick.now >= lengthToPlay) {
             this.tick.now = 0;
             this.scrollWrapper.scrollLeft = 0;
         }
@@ -338,20 +375,23 @@ class JakesMiniSeq {
             this.scale = fromUri.scale;
             this.tempoMs = fromUri.tempoMs;
 
-            this.score.music.forEach((tick, beatIndex) => {
-                if (tick) {
-                    Object.keys(tick).forEach(noteName => {
-                        const [, note, octave] = noteName.match(/^(\D+)(\d)$/);
-
-                        let pitchIndex = (Number(octave * this.config.scales[this.scale].length))
-                            + Number(this.config.scales[this.scale].indexOf(note))
-                            - (this.config.rootOctave * this.config.scales[this.scale].length);
-
-                        this.drawNote('fillRect', beatIndex, pitchIndex);
-
-                    });
-                }
-            });
+            this.renderScore();
         }
+    }
+
+    renderScore() {
+        this.score.music.forEach((tick, beatIndex) => {
+            if (tick) {
+                Object.keys(tick).forEach(noteName => {
+                    const [, note, octave] = noteName.match(/^(\D+)(\d)$/);
+
+                    let pitchIndex = (Number(octave * this.config.scales[this.scale].length))
+                        + Number(this.config.scales[this.scale].indexOf(note))
+                        - (this.config.rootOctave * this.config.scales[this.scale].length);
+
+                    this.drawNote('fillRect', beatIndex, pitchIndex);
+                });
+            }
+        });
     }
 }

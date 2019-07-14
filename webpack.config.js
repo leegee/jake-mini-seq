@@ -14,7 +14,9 @@ module.exports = {
     port: 9000
   },
   plugins: [
-    new HtmlWebpackPlugin(),
+    new HtmlWebpackPlugin({
+      title: "Jakab's Tiny Sequencer"
+    }),
     new CopyPlugin([
       {from: 'assets/soundfont/acoustic_grand_piano-mp3/**'},
       {from: 'assets/soundfont/acoustic_grand_piano-mp3.js', to: 'assets/soundfont/acoustic_grand_piano-mp3.js'},
