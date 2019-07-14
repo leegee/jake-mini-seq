@@ -26,7 +26,6 @@ class JakesMiniSeq {
         notesPerBar: 4,
         totalBars: 8
     };
-    score;
     note = {
         canvas: undefined,
         ctx: undefined
@@ -37,7 +36,8 @@ class JakesMiniSeq {
     };
     score = {
         canvas: undefined,
-        ctx: undefined
+        ctx: undefined,
+        music: []
     };
     ctrls = { playCtrl: null };
     scrollWrapper;
@@ -47,7 +47,7 @@ class JakesMiniSeq {
     lastTickIndex;
 
     constructor() {
-        this.score = new Array(this.config.totalBars * this.config.notesPerBar);
+        this.score.music = new Array(this.config.totalBars * this.config.notesPerBar);
 
         this.scrollWrapper = document.createElement('section');
         this.scrollWrapper.setAttribute('id', 'scroll-wrapper');
@@ -106,7 +106,7 @@ class JakesMiniSeq {
 
         for (let bar = 0; bar < this.config.totalBars; bar++) {
             for (let beatInBar = 0; beatInBar < this.config.notesPerBar; beatInBar++) {
-                this.score[beatIndex] = {};
+                this.score.music[beatIndex] = {};
                 this.score.ctx.beginPath();
                 this.score.ctx.strokeStyle = "white";
                 if (beatIndex % this.config.notesPerBar === 0 && beatIndex !== 0) {
@@ -180,23 +180,26 @@ class JakesMiniSeq {
         const noteName = this.config.scales[this.config.scale][note] + (this.config.rootOctave + octave);
         let method;
 
-        if (this.score[beatIndex][noteName] !== undefined) {
-            delete this.score[beatIndex][noteName];
+        if (this.score.music[beatIndex][noteName] !== undefined) {
+            delete this.score.music[beatIndex][noteName];
             method = 'clearRect';
         } else {
-            this.score[beatIndex][noteName] = true;
+            this.score.music[beatIndex][noteName] = true;
             method = 'fillRect';
-            this.note.ctx.beginPath();
-            this.note.ctx.strokeStyle = "white";
-            this.note.ctx.fillStyle = '#f2740c';
+            this.sounds[noteName].play();
         }
 
-        console.log('TOGGLE NOTE', beatIndex, noteName, pitchIndex, this.score[beatIndex][noteName]);
+        console.log('TOGGLE NOTE', beatIndex, noteName, pitchIndex, this.score.music[beatIndex][noteName]);
         this.drawNote(method, beatIndex, pitchIndex);
     }
 
     drawNote(method, beatIndex, pitchIndex) {
-        this.note.ctx[method](
+    if (method === 'fillRect'){
+        this.note.ctx.beginPath();
+        this.note.ctx.strokeStyle = "white";
+        this.note.ctx.fillStyle = '#f2740c';
+    }
+    this.note.ctx[method](
             beatIndex * this.config.noteSizeX,
             this.score.canvas.height - ((pitchIndex + 1) * this.config.noteSizeY),
             this.config.noteSizeX,
@@ -226,7 +229,7 @@ class JakesMiniSeq {
     }
 
     nextTick() {
-        Object.keys(this.score[this.tickIndex]).forEach(noteName => {
+        Object.keys(this.score.music[this.tickIndex]).forEach(noteName => {
             this.sounds[noteName].play();
         });
 
@@ -250,7 +253,7 @@ class JakesMiniSeq {
         this.lastTickIndex = this.tickIndex;
 
         this.tickIndex++;
-        if (this.tickIndex >= this.score.length) {
+        if (this.tickIndex >= this.score.music.length) {
             this.tickIndex = 0;
         }
     }
@@ -258,9 +261,9 @@ class JakesMiniSeq {
     showSave() {
         let uri = document.location.protocol + '//' + document.location.host +
             document.location.pathname + '?' +
-            btoa(JakesMiniSeq.dataUriPrefix + JSON.stringify(this.score));
+            btoa(JakesMiniSeq.dataUriPrefix + JSON.stringify(this.score.music));
 
-        window.prompt('Your song:', uri);
+        window.prompt('Copy and paste this link to replay your tune', uri);
     }
 
     urlToScore() {
@@ -271,19 +274,20 @@ class JakesMiniSeq {
 
             console.log(jsonStr);
 
-            this.score = JSON.parse(jsonStr);
+            this.score.music = JSON.parse(jsonStr);
 
-            this.score.forEach((tick, tickIndex) => {
+            this.score.music.forEach((tick, beatIndex) => {
                 if (tick) {
                     Object.keys(tick).forEach(noteName => {
-                        
                         const [, note, octave] = noteName.match(/^(\D+)(\d)$/);
                         
-                        let  pitchIndex = Number(octave * this.config.scales[this.config.scale].length);
-                        pitchIndex += Number(this.config.scales[this.config.scale].indexOf(note));
-                        
-                        console.log('load ', tickIndex, noteName, pitchIndex);
-                        this.drawNote('fillRect', tickIndex, pitchIndex);
+                        let  pitchIndex = (Number(octave * this.config.scales[this.config.scale].length))
+                        +  Number(this.config.scales[this.config.scale].indexOf(note))
+                        - (this.config.rootOctave * this.config.scales[this.config.scale].length);
+
+                        console.log('load ', beatIndex, note, octave,  noteName, pitchIndex);
+                        this.drawNote('fillRect', beatIndex, pitchIndex);
+
                     });
                 }
             });
