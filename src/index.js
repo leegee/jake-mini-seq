@@ -28,7 +28,16 @@ class JakesMiniSeq {
     };
     note = {
         canvas: undefined,
-        ctx: undefined
+        ctx: undefined,
+        clrs: [
+            'red',
+            'orange',
+            'yellow',
+            'green',
+            'blue',
+            'indigo',
+            'purple',
+        ]
     };
     tick = {
         canvas: undefined,
@@ -197,7 +206,9 @@ class JakesMiniSeq {
     if (method === 'fillRect'){
         this.note.ctx.beginPath();
         this.note.ctx.strokeStyle = "white";
-        this.note.ctx.fillStyle = '#f2740c';
+        this.note.ctx.fillStyle = this.note.clrs[
+            pitchIndex % this.config.scales[this.config.scale].length
+        ];
     }
     this.note.ctx[method](
             beatIndex * this.config.noteSizeX,
