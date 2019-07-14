@@ -21,7 +21,7 @@ body {
     display: flex;
     flex-wrap: nowrap;
     overflow-y: auto;
-    height: 300px;
+    position: relative;
 }
 
 #scroll-wrapper > canvas {
@@ -40,8 +40,6 @@ body {
 #ctrls span {
     position: relative;
     float: left;
-    border: 3px double;
-    border-radius: 50%;
     width: 1em;
     height: 1em;
     line-height: 1em;
@@ -60,11 +58,7 @@ body {
 }
 
 .playing {
-    background: red;
-    border-color: red;
 }
 
 .paused {
-    background: green;
-    border-color: green;
 }
