@@ -118,8 +118,9 @@ class JakesMiniSeq {
         this.scrollWrapper.style.height = this.tick.canvas.height + 'px';
 
         this.scrollWrapper.addEventListener('click', (e) => {
-            const x = e.pageX - e.target.offsetLeft + this.scrollWrapper.scrollLeft;
-            const y = this.score.canvas.height - e.pageY - e.target.offsetTop;
+            const rect = e.target.getBoundingClientRect();
+            const x = e.clientX - rect.left + this.scrollWrapper.scrollLeft;
+            const y = this.score.canvas.height - (e.clientY - rect.top);
             const beatIndex = parseInt(x / this.note.size.x);
             const pitchIndex = parseInt(y / this.note.size.y);
             this.toggleNote(beatIndex, pitchIndex);
@@ -190,10 +191,12 @@ class JakesMiniSeq {
             <input type='range' id='tempo-ms' min=10 max=1000 step=25 value=${this.tempoMs}>
         </fieldset>
 
-        <select id='instrument-ctrl'>
-            <option value='acoustic_grand_piano'>Piano</option>
-            <option value='X'>X</option>
-        </select>
+        <fieldset>
+            <legend>Instrument</legend>
+            <select id='instrument-ctrl'>
+                <option value='acoustic_grand_piano'>Piano</option>
+            </select>
+        </fieldset>
 
         <fieldset>
             <legend>Beats per bar</legend>

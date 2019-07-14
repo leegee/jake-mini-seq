@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css?family=Sunshiney&display=swap');
+
 :root {
     --pageBg: #421383;
     color: white;
@@ -10,6 +12,12 @@
 body {
     background: var(--pageBg);
     overflow: auto;
+}
+
+h1 {
+    font-family: 'Sunshiney', cursive;
+    opacity: 0.5;
+    text-align: center;
 }
 
 #scroll-wrapper {
@@ -27,23 +35,34 @@ body {
     left: 0;
 }
 
+#tick,
+#notes,
+#score {
+    pointer-events: none;
+}
+
+
 #ctrls {
     position: absolute;
     bottom: 0;
     font-size: 24pt;
 }
 
-#ctrls span {
-    position: relative;
+#ctrls span,
+#ctrls fieldset {
     float: left;
-    width: 1em;
-    height: 1em;
-    line-height: 1em;
     padding: 0.2em;
     text-align: center;
     color: white;
     margin-left: 1em;
     margin-bottom: 0.5em;
+}
+
+#ctrls span {
+    position: relative;
+    width: 1em;
+    height: 1em;
+    line-height: 1em;
     cursor:pointer;
 }
 /* 
