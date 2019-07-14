@@ -1,166 +1,205 @@
-const { Howl, Howler } = require('howler');
-
-document.addEventListener('DOMContentLoaded', run);
-
 import css from './index.css';
 
-const Config = {
-    soundsDir: './assets/soundfont/acoustic_grand_piano-mp3/',
-    delay: 0,
-    velocity: 127,
-    durationMs: 200,
-    rootOctave: 3,
-    octaves: 4,
-    scale: 'major',
-    scales: {
-        major: [
-            'C', 'D', 'E', 'F', 'G', 'A', 'B'
-        ]
-    },
-    notesPerBar: 4,
-    totalBars: 8
-}
+import { Howl, Howler } from 'howler';
 
-const Ctrls = {
-    playCtrl: null
-};
-const ColumnBeatEls = [];
-const Sounds = {};
-const Score = new Array(Config.totalBars * Config.notesPerBar);
-let loopInterval;
-let tickIndex = 0;
-let lastTickIndex;
+document.addEventListener('DOMContentLoaded', () => {
+    new JakesMiniSeq().run();
+});
 
-function run() {
-    loadSounds();
-    makeGrid();
-    listen();
-    stopLoop();
-}
+class JakesMiniSeq {
+    config = {
+        noteSizeX: 30,
+        noteSizeY: 20,
+        soundsDir: './assets/soundfont/acoustic_grand_piano-mp3/',
+        delay: 0,
+        velocity: 127,
+        durationMs: 200,
+        rootOctave: 3,
+        totalOctaves: 3,
+        scale: 'major',
+        scales: {
+            major: [
+                'C', 'D', 'E', 'F', 'G', 'A', 'B'
+            ]
+        },
+        notesPerBar: 4,
+        totalBars: 8
+    };
+    score;
+    scoreCanvas;
+    noteCanvas;
+    scoreCtx;
+    noteCtx;
+    ctrls = { playCtrl: null };
+    sounds = {};
+    loopIntervalId;
+    tickIndex = 0;
+    lastTickIndex;
 
-function loadSounds() {
-    for (let octave = 0; octave < Config.octaves; octave++) {
-        for (let note = 0; note < Config.scales[Config.scale].length; note++) {
-            const noteName = Config.scales[Config.scale][note] + (Config.rootOctave + octave);
-            console.debug('Loading oct %d note %d :', octave, note, noteName);
-            Sounds[noteName] = new Howl({
-                src: [
-                    Config.soundsDir + '/' + noteName + '.mp3'
-                ]
-            });
-        }
+    constructor() {
+        this.score = new Array(this.config.totalBars * this.config.notesPerBar);
+
+        this.scoreCanvas = document.createElement('canvas');
+        this.scoreCanvas.setAttribute('id', 'score');
+        this.scoreCtx = this.scoreCanvas.getContext('2d');
+        this.noteCanvas = document.createElement('canvas');
+        this.noteCanvas.setAttribute('id', 'notes');
+        this.noteCtx = this.scoreCanvas.getContext('2d');
     }
-}
 
-function makeGrid() {
-    let beatIndex = -1;
-    const $grid = document.createElement('main');
+    run() {
+        this.loadSounds();
+        this.makeCavnas();
+        this.makeCtrls();
+        this.stopLoop();
+    }
 
-    for (let bar = 0; bar < Config.totalBars; bar++) {
-        const $bar = document.createElement('section');
-        $bar.className = 'bar';
-
-        for (let beat = 0; beat < Config.notesPerBar; beat++) {
-            beatIndex++;
-            const $div = document.createElement('div');
-            $div.className = 'beat';
-            ColumnBeatEls.push($div);
-            Score[beatIndex] = {};
-
-            for (let octave = Config.rootOctave + Config.octaves - 1; octave >= Config.rootOctave; octave--) {
-                const $octave = document.createElement('div');
-                $octave.className = 'octave';
-                // for (let note = 0; note < Config.scales[Config.scale].length; note++) {
-                for (let note = Config.scales[Config.scale].length - 1; note >= 0; note--) {
-                    const $note = document.createElement('span');
-                    $note.index = (bar * Config.notesPerBar) + note;
-                    $note.beatIndex = beatIndex;
-                    $note.bar = bar;
-                    $note.beat = beat;
-                    $note.octave = octave;
-                    $note.note = note;
-                    $note.className = 'note';
-                    $note.play = false;
-                    $octave.appendChild($note);
-                }
-                $div.appendChild($octave);
+    loadSounds() {
+        for (let octave = 0; octave < this.config.totalOctaves; octave++) {
+            for (let note = 0; note < this.config.scales[this.config.scale].length; note++) {
+                const noteName = this.config.scales[this.config.scale][note] + (this.config.rootOctave + octave);
+                console.debug('Loading oct %d note %d :', octave, note, noteName);
+                this.sounds[noteName] = new Howl({
+                    src: [
+                        this.config.soundsDir + '/' + noteName + '.mp3'
+                    ]
+                });
             }
-            $bar.appendChild($div);
         }
-        $grid.appendChild($bar);
-    }
-    document.body.appendChild($grid);
-
-    const ctrls = document.createElement('aside');
-    Ctrls.playCtrl = document.createElement('span');
-    Ctrls.playCtrl.classList.add('play-ctrl', 'paused');
-    ctrls.appendChild(Ctrls.playCtrl);
-    document.body.appendChild(ctrls);
-}
-
-function listen() {
-    document.body.addEventListener('click', (e) => {
-        if (e.target.classList.contains('note')) {
-            toggleNote(e.target);
-        }
-        else if (e.target.classList.contains('playing')) {
-            stopLoop();
-        }
-        else if (e.target.classList.contains('paused')) {
-            playLoop();
-        }
-    });
-}
-
-function el2note(el) {
-    return Config.scales[Config.scale][el.note] + el.octave;
-}
-
-function toggleNote(el) {
-    el.play = !el.play;
-    if (el.play) {
-        Score[el.beatIndex][el2note(el)] = true;
-        el.classList.add('play');
-    } else {
-        delete Score[el.beatIndex][el2note(el)];
-        el.classList.remove('play');
-    }
-}
-
-function playLoop() {
-    stopLoop();
-    loopInterval = setInterval(() => {
-        tick();
-    }, Config.durationMs);
-    
-    Ctrls.playCtrl.classList.remove('paused');
-    Ctrls.playCtrl.classList.add('playing');
-}
-
-function stopLoop() {
-    if (loopInterval) {
-        clearInterval(loopInterval);
     }
 
-    Ctrls.playCtrl.classList.remove('playing');
-    Ctrls.playCtrl.classList.add('paused');
-}
+    makeCavnas() {
+        this.noteCanvas.width = this.scoreCanvas.width = this.config.noteSizeX * this.config.totalBars * this.config.notesPerBar;
+        this.noteCanvas.height = this.scoreCanvas.height = this.config.noteSizeY * this.config.totalOctaves * this.config.scales[this.config.scale].length;
+        
+        this.noteCanvas.addEventListener('click', (e) => {
+            const x = e.pageX - e.target.offsetLeft;
+            const y = e.pageY - e.target.offsetTop;
+            const beatIndex = parseInt(x / this.config.noteSizeX);
+            const pitchIndex = parseInt(y / this.config.noteSizeY);
+            this.toggleNote(beatIndex, pitchIndex);
+        });
 
-function tick() {
-    if (typeof lastTickIndex !== 'undefined') {
-        ColumnBeatEls[lastTickIndex].classList.remove('currentBeat');
+        this.scoreCtx.globalAlpha = 0.5;
+
+        let x = 0;
+        let beatIndex = 0;
+
+        for (let bar = 0; bar < this.config.totalBars; bar++) {
+            for (let beatInBar = 0; beatInBar < this.config.notesPerBar; beatInBar++) {
+                this.score[beatIndex] = {};
+                this.scoreCtx.beginPath();
+                this.scoreCtx.strokeStyle = "white";
+                if (beatIndex % this.config.notesPerBar === 0 && beatIndex !== 0) {
+                    this.scoreCtx.lineWidth = 2;
+                } else {
+                    this.scoreCtx.lineWidth = 1;
+                }
+                this.scoreCtx.moveTo(x, 0);
+                this.scoreCtx.lineTo(x, this.scoreCanvas.height);
+                this.scoreCtx.stroke();
+                x += this.config.noteSizeX;
+                beatIndex++;
+            }
+        }
+
+        let y = 0;
+        let note = 0;
+        let scaleLength = this.config.scales[this.config.scale].length;
+
+        for (let octave = this.config.rootOctave; octave < this.config.rootOctave + this.config.totalOctaves; octave++) {
+            for (let noteInScale = 0; noteInScale < scaleLength; noteInScale++) {
+                this.scoreCtx.beginPath();
+                this.scoreCtx.strokeStyle = "white";
+                if (note % scaleLength === 0 && note !== 0) {
+                    this.scoreCtx.lineWidth = 2;
+                } else {
+                    this.scoreCtx.lineWidth = 1;
+                }
+                this.scoreCtx.moveTo(0, y);
+                this.scoreCtx.lineTo(this.scoreCanvas.width, y);
+                this.scoreCtx.stroke();
+                y += this.config.noteSizeY;
+                note++;
+            }
+        }
+
+        this.scoreCtx.globalAlpha = 1;
+
+        document.body.appendChild(this.scoreCanvas);
+        document.body.appendChild(this.noteCanvas);
     }
 
-    ColumnBeatEls[tickIndex].classList.add('currentBeat');
-    ColumnBeatEls[tickIndex].scrollIntoView();
+    makeCtrls() {
+        const ctrls = document.createElement('aside');
+        this.ctrls.playCtrl = document.createElement('span');
+        this.ctrls.playCtrl.classList.add('play-ctrl', 'paused');
+        ctrls.appendChild(this.ctrls.playCtrl);
+        document.body.appendChild(ctrls);
 
-    Object.keys(Score[tickIndex]).forEach( noteName => {
-        Sounds[noteName].play();
-    });
+        ctrls.addEventListener('click', (e) => {
+            if (e.target.classList.contains('playing')) {
+                this.stopLoop();
+            }
+            else if (e.target.classList.contains('paused')) {
+                this.playLoop();
+            }
+        });
+    }
 
-    lastTickIndex = tickIndex;
-    tickIndex++;
-    if (tickIndex >= Score.length) {
-        tickIndex = 0;
+    toggleNote(beatIndex, pitchIndex) {
+        const octave = parseInt(pitchIndex / this.config.scales[this.config.scale].length);
+        const note = pitchIndex % this.config.scales[this.config.scale].length;
+        const noteName = this.config.scales[this.config.scale][note] + (this.config.rootOctave + octave);
+
+        if (this.score[beatIndex][noteName]) {
+            delete this.score[beatIndex][noteName];
+        } else {
+            this.score[beatIndex][noteName] = true;
+        }
+
+        this.noteCtx.beginPath();
+        this.noteCtx.strokeStyle = "white";
+        this.noteCtx.fillStyle = '#f2740c';
+        this.noteCtx.fillRect(
+            beatIndex * this.config.noteSizeX,
+            pitchIndex * this.config.noteSizeY,
+            this.config.noteSizeX,
+            this.config.noteSizeY
+        );
+
+        console.log('TOGGLE NOTE', beatIndex, noteName, this.score[beatIndex][noteName]);
+
+    }
+
+    playLoop() {
+        this.stopLoop();
+        this.loopIntervalId = setInterval(() => {
+            this.tick();
+        }, this.config.durationMs);
+
+        this.ctrls.playCtrl.classList.remove('paused');
+        this.ctrls.playCtrl.classList.add('playing');
+    }
+
+    stopLoop() {
+        if (this.loopIntervalId) {
+            clearInterval(this.loopIntervalId);
+        }
+
+        this.ctrls.playCtrl.classList.remove('playing');
+        this.ctrls.playCtrl.classList.add('paused');
+    }
+
+    tick() {
+        Object.keys(this.score[this.tickIndex]).forEach(noteName => {
+            this.sounds[noteName].play();
+        });
+
+        this.lastTickIndex = this.tickIndex;
+        this.tickIndex++;
+        if (this.tickIndex >= this.score.length) {
+            this.tickIndex = 0;
+        }
     }
 }
