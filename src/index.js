@@ -8,14 +8,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
 class JakesMiniSeq {
     static dataUriPrefix = 'data:text/plain;base64,';
+    scale = 'major';
+    tempoMs = 200;
     config = {
         soundsDir: './assets/soundfont/acoustic_grand_piano-mp3/',
         delay: 0,
         velocity: 127,
-        durationMs: 200,
         rootOctave: 3,
         totalOctaves: 3,
-        scale: 'major',
         scales: {
             major: [
                 'C', 'D', 'E', 'F', 'G', 'A', 'B'
@@ -32,13 +32,13 @@ class JakesMiniSeq {
         canvas: undefined,
         ctx: undefined,
         clrs: [
-            'red',
-            'orange',
-            'yellow',
-            'green',
-            'blue',
-            'indigo',
-            'purple',
+            '#4A72EE',
+            '#B651CF',
+            '#E1377E',
+            '#FF7727',
+            '#FFBB2B',
+            '#87B752',
+            '#38B7BD',
         ]
     };
     tick = {
@@ -86,8 +86,8 @@ class JakesMiniSeq {
 
     loadSounds() {
         for (let octave = 0; octave < this.config.totalOctaves; octave++) {
-            for (let note = 0; note < this.config.scales[this.config.scale].length; note++) {
-                const noteName = this.config.scales[this.config.scale][note] + (this.config.rootOctave + octave);
+            for (let note = 0; note < this.config.scales[this.scale].length; note++) {
+                const noteName = this.config.scales[this.scale][note] + (this.config.rootOctave + octave);
                 console.debug('Loading oct %d note %d :', octave, note, noteName);
                 this.sounds[noteName] = new Howl({
                     src: [
@@ -103,7 +103,7 @@ class JakesMiniSeq {
             this.note.size.x * this.config.totalBars * this.config.notesPerBar;
         
         this.tick.canvas.height = this.note.canvas.height = this.score.canvas.height 
-            = this.note.size.y * this.config.totalOctaves * this.config.scales[this.config.scale].length;
+            = this.note.size.y * this.config.totalOctaves * this.config.scales[this.scale].length;
 
         this.scrollWrapper.style.height = this.tick.canvas.height + 'px';
 
@@ -140,7 +140,7 @@ class JakesMiniSeq {
 
         let y = 0;
         let note = 0;
-        let scaleLength = this.config.scales[this.config.scale].length;
+        let scaleLength = this.config.scales[this.scale].length;
 
         for (let octave = this.config.rootOctave; octave < this.config.rootOctave + this.config.totalOctaves; octave++) {
             for (let noteInScale = 0; noteInScale < scaleLength; noteInScale++) {
@@ -174,6 +174,7 @@ class JakesMiniSeq {
         <span id='rewind-ctrl' class='rewind'>◀</span>
         <span id='play-ctrl' class='paused'></span>
         <span id='save-ctrl'>💾</span>
+        <input type='range' id='tempo-ms' min=10 max=1000 step=25 value=${this.tempoMs}>
         `;
         document.body.appendChild(ctrls);
         this.ctrls.playCtrl = document.getElementById('play-ctrl');
@@ -190,14 +191,21 @@ class JakesMiniSeq {
             }
             else if (e.target.id === 'rewind-ctrl') {
                 this.rewindLoop();
+            } else if (e.target.id === 'tempo-ms') {
+                console.log(e.target.value)
+                this.tempoMs = Number(e.target.value);
+                this.stopLoop();
+                this.playLoop();
+            } else {
+                console.log(e.target.id)
             }
         });
     }
 
     toggleNote(beatIndex, pitchIndex) {
-        const octave = parseInt(pitchIndex / this.config.scales[this.config.scale].length);
-        const note = pitchIndex % this.config.scales[this.config.scale].length;
-        const noteName = this.config.scales[this.config.scale][note] + (this.config.rootOctave + octave);
+        const octave = parseInt(pitchIndex / this.config.scales[this.scale].length);
+        const note = pitchIndex % this.config.scales[this.scale].length;
+        const noteName = this.config.scales[this.scale][note] + (this.config.rootOctave + octave);
         let method;
 
         if (this.score.music[beatIndex][noteName] !== undefined) {
@@ -218,7 +226,7 @@ class JakesMiniSeq {
             this.note.ctx.beginPath();
             this.note.ctx.strokeStyle = "white";
             this.note.ctx.fillStyle = this.note.clrs[
-                pitchIndex % this.config.scales[this.config.scale].length
+                pitchIndex % this.config.scales[this.scale].length
             ];
         }
         this.note.ctx[method](
@@ -233,7 +241,7 @@ class JakesMiniSeq {
         this.stopLoop();
         this.loopIntervalId = setInterval(() => {
             this.nextTick();
-        }, this.config.durationMs);
+        }, this.tempoMs);
 
         this.ctrls.playCtrl.classList.remove('paused');
         this.ctrls.playCtrl.classList.add('playing');
@@ -308,8 +316,13 @@ class JakesMiniSeq {
 
     showSave() {
         let uri = document.location.protocol + '//' + document.location.host +
-            document.location.pathname + '?' +
-            btoa(JakesMiniSeq.dataUriPrefix + JSON.stringify(this.score.music));
+            document.location.pathname + '?' + btoa(
+                JakesMiniSeq.dataUriPrefix + JSON.stringify({
+                    music: this.score.music,
+                    scale: this.scale,
+                    tempoMs: this.tempoMs
+                })
+            );
 
         window.prompt('Copy and paste this link to replay your tune', uri);
     }
@@ -320,16 +333,19 @@ class JakesMiniSeq {
                 document.location.search.substr(1)
             ).substr(JakesMiniSeq.dataUriPrefix.length);
 
-            this.score.music = JSON.parse(jsonStr);
+            const fromUri = JSON.parse(jsonStr);
+            this.score.music = fromUri.music;
+            this.scale = fromUri.scale;
+            this.tempoMs = fromUri.tempoMs;
 
             this.score.music.forEach((tick, beatIndex) => {
                 if (tick) {
                     Object.keys(tick).forEach(noteName => {
                         const [, note, octave] = noteName.match(/^(\D+)(\d)$/);
 
-                        let pitchIndex = (Number(octave * this.config.scales[this.config.scale].length))
-                            + Number(this.config.scales[this.config.scale].indexOf(note))
-                            - (this.config.rootOctave * this.config.scales[this.config.scale].length);
+                        let pitchIndex = (Number(octave * this.config.scales[this.scale].length))
+                            + Number(this.config.scales[this.scale].indexOf(note))
+                            - (this.config.rootOctave * this.config.scales[this.scale].length);
 
                         this.drawNote('fillRect', beatIndex, pitchIndex);
 

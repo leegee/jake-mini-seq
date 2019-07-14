@@ -1,9 +1,5 @@
 :root {
-    --borders: hsla(283, 28%, 50%, .5);
-    --noteBg: #f2740c;
-    --beatBg: hsla(283, 28%, 50%, .5);
-    --ctrlBg: #66a;
-    --pageBg: hsl(295, 71%, 22%);
+    --pageBg: #421383;
     color: white;
 }
 
@@ -50,15 +46,9 @@ body {
     margin-bottom: 0.5em;
     cursor:pointer;
 }
-
-#play-ctrl {
-}
-#save-ctrl {
-    background: navy;
-}
-
-.playing {
-}
-
-.paused {
-}
+/* 
+#play-ctrl { }
+#save-ctrl { }
+.playing { }
+.paused { } 
+*/
