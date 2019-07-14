@@ -15,7 +15,11 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      title: "Jakab's Tiny Sequencer"
+      title: "Jakab's Tiny Sequencer",
+      'meta': {
+        'viewport': 'width=device-width, initial-scale=1, shrink-to-fit=no',
+        'theme-color': '#421383'
+      }
     }),
     new CopyPlugin([
       {from: 'assets/soundfont/acoustic_grand_piano-mp3/**'},

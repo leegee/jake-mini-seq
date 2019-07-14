@@ -224,15 +224,16 @@ class JakesMiniSeq {
         });
         
         const bib = document.getElementById('beats-in-bar-ctrl');
+        bib.value = this.notesPerBar;
         bib.addEventListener('change', (e) => {
             this.beatInBar = e.target.options[e.target.selectedIndex].value;
             this.removeCanvas();
             this.makeCavnas();
             this.renderScore();
         });
-        tbc.value = this.totalBars;
 
         const tbc = document.getElementById('total-bars-ctrl');
+        tbc.value = this.totalBars;
         tbc.addEventListener('change', (e) => {
             this.totalBars = e.target.options[e.target.selectedIndex].value;
             this.removeCanvas();
