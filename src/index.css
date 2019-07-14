@@ -36,9 +36,12 @@ h1, h2 {
 }
 
 #tick,
-#notes,
 #score {
     pointer-events: none;
+}
+
+#notes {
+    z-index: 100;
 }
 
 #ctrls {

@@ -28,7 +28,7 @@ class JakesMiniSeq {
             ]
         }
     };
-    note = {
+    notes = {
         size: {
             x: 30,
             y: 20,
@@ -94,36 +94,32 @@ class JakesMiniSeq {
 
     renderGrid() {
         this.scrollWrapper = document.getElementById('scroll-wrapper');
-        this.scrollWrapper.innerHTML = '';
-
+        
+        const elements = this.scrollWrapper.querySelectorAll('canvas');
+        elements.forEach(el => {
+            this.scrollWrapper.removeChild(el);
+        });
+        debugger;
+        
         this.score.canvas = document.createElement('canvas');
         this.score.canvas.setAttribute('id', 'score');
         this.score.ctx = this.score.canvas.getContext('2d');
-
-        this.note.canvas = document.createElement('canvas');
-        this.note.canvas.setAttribute('id', 'notes');
-        this.note.ctx = this.note.canvas.getContext('2d');
 
         this.tick.canvas = document.createElement('canvas');
         this.tick.canvas.setAttribute('id', 'tick');
         this.tick.ctx = this.tick.canvas.getContext('2d');
 
-        this.tick.canvas.width = this.note.canvas.width = this.score.canvas.width =
-            this.note.size.x * this.totalBars * this.beatsPerBar;
+        this.notes.canvas = document.createElement('canvas');
+        this.notes.canvas.setAttribute('id', 'notes');
+        this.notes.ctx = this.notes.canvas.getContext('2d');
+
+        this.tick.canvas.width = this.notes.canvas.width = this.score.canvas.width =
+            this.notes.size.x * this.totalBars * this.beatsPerBar;
         
-        this.tick.canvas.height = this.note.canvas.height = this.score.canvas.height 
-            = this.note.size.y * this.config.totalOctaves * this.config.scales[this.scale].length;
+        this.tick.canvas.height = this.notes.canvas.height = this.score.canvas.height 
+            = this.notes.size.y * this.config.totalOctaves * this.config.scales[this.scale].length;
 
         this.scrollWrapper.style.height = this.tick.canvas.height + 'px';
-
-        this.scrollWrapper.addEventListener('click', (e) => {
-            const rect = e.target.getBoundingClientRect();
-            const x = e.clientX - rect.left + this.scrollWrapper.scrollLeft;
-            const y = this.score.canvas.height - (e.clientY - rect.top);
-            const beatIndex = parseInt(x / this.note.size.x);
-            const pitchIndex = parseInt(y / this.note.size.y);
-            this.toggleNote(beatIndex, pitchIndex);
-        });
 
         this.score.ctx.globalAlpha = 0.5;
 
@@ -143,7 +139,7 @@ class JakesMiniSeq {
                 this.score.ctx.moveTo(x, 0);
                 this.score.ctx.lineTo(x, this.score.canvas.height);
                 this.score.ctx.stroke();
-                x += this.note.size.x;
+                x += this.notes.size.x;
                 beatIndex++;
             }
         }
@@ -164,7 +160,7 @@ class JakesMiniSeq {
                 this.score.ctx.moveTo(0, y);
                 this.score.ctx.lineTo(this.score.canvas.width, y);
                 this.score.ctx.stroke();
-                y += this.note.size.y;
+                y += this.notes.size.y;
                 note++;
             }
         }
@@ -173,8 +169,20 @@ class JakesMiniSeq {
 
         this.scrollWrapper.appendChild(this.score.canvas);
         this.scrollWrapper.appendChild(this.tick.canvas);
-        this.scrollWrapper.appendChild(this.note.canvas);
+        this.scrollWrapper.appendChild(this.notes.canvas);
+
+        this.notes.canvas.addEventListener('click', this.clickGrid.bind(this));
+
         document.body.appendChild(this.scrollWrapper);
+    }
+
+    clickGrid(e) {
+        const rect = e.target.getBoundingClientRect();
+        const x = e.clientX - rect.left + this.scrollWrapper.scrollLeft;
+        const y = this.score.canvas.height - (e.clientY - rect.top);
+        const beatIndex = parseInt(x / this.notes.size.x);
+        const pitchIndex = parseInt(y / this.notes.size.y);
+        this.toggleNote(beatIndex, pitchIndex);
     }
 
     makeCtrls() {
@@ -234,10 +242,12 @@ class JakesMiniSeq {
         let method;
 
         if (this.score.music[beatIndex][noteName] !== undefined) {
+            console.log('delete', this.score.music[beatIndex][noteName])
             delete this.score.music[beatIndex][noteName];
             method = 'clearRect';
         } else {
             this.score.music[beatIndex][noteName] = true;
+            console.log('set', this.score.music[beatIndex][noteName])
             method = 'fillRect';
             this.sounds[noteName].play();
         }
@@ -248,17 +258,17 @@ class JakesMiniSeq {
 
     drawNote(method, beatIndex, pitchIndex) {
         if (method === 'fillRect') {
-            this.note.ctx.beginPath();
-            this.note.ctx.strokeStyle = "white";
-            this.note.ctx.fillStyle = this.note.clrs[
+            this.notes.ctx.beginPath();
+            this.notes.ctx.strokeStyle = "white";
+            this.notes.ctx.fillStyle = this.notes.clrs[
                 pitchIndex % this.config.scales[this.scale].length
             ];
         }
-        this.note.ctx[method](
-            beatIndex * this.note.size.x,
-            this.score.canvas.height - ((pitchIndex + 1) * this.note.size.y),
-            this.note.size.x,
-            this.note.size.y
+        this.notes.ctx[method](
+            beatIndex * this.notes.size.x,
+            this.score.canvas.height - ((pitchIndex + 1) * this.notes.size.y),
+            this.notes.size.x,
+            this.notes.size.y
         );
     }
 
@@ -286,13 +296,13 @@ class JakesMiniSeq {
     rewindLoop() {
         this.stopLoop();
         this.tick.ctx.clearRect(
-            this.note.size.x * this.tick.previous, 0,
-            this.note.size.x,
+            this.notes.size.x * this.tick.previous, 0,
+            this.notes.size.x,
             this.tick.canvas.height
         );
         this.tick.ctx.clearRect(
-            this.note.size.x * this.tick.now, 0,
-            this.note.size.x,
+            this.notes.size.x * this.tick.now, 0,
+            this.notes.size.x,
             this.tick.canvas.height
         );
         this.tick.previous = undefined;
@@ -304,7 +314,7 @@ class JakesMiniSeq {
         const lengthToPlay = this.totalBars * this.beatsPerBar; // this.score.music.length;
         if (this.tick.now > 4 && this.tick.now  < lengthToPlay - 4) {
             this.scrollWrapper.scrollBy({
-                left: this.note.size.x,
+                left: this.notes.size.x,
                 top: 0,
                 behavior: 'smooth'
             });
@@ -316,8 +326,8 @@ class JakesMiniSeq {
 
         if (this.tick.previous !== undefined) {
             this.tick.ctx.clearRect(
-                this.note.size.x * this.tick.previous, 0,
-                this.note.size.x,
+                this.notes.size.x * this.tick.previous, 0,
+                this.notes.size.x,
                 this.tick.canvas.height
             );
         }
@@ -325,8 +335,8 @@ class JakesMiniSeq {
         this.tick.ctx.globalAlpha = 0.25;
         this.tick.ctx.fillStyle = 'white';
         this.tick.ctx.fillRect(
-            this.note.size.x * this.tick.now, 0,
-            this.note.size.x,
+            this.notes.size.x * this.tick.now, 0,
+            this.notes.size.x,
             this.tick.canvas.height
         );
         this.tick.ctx.globalAlpha = 1;
