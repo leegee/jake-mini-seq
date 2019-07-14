@@ -13,7 +13,7 @@ class JakesMiniSeq {
     scale = 'major';
     tempoMs = 200;
     instrument = 'acoustic_grand_piano';
-    notesPerBar = 4;
+    beatsPerBar = 4;
     totalBars = 8;
     config = {
         soundsDir: './assets/soundfont/',
@@ -64,12 +64,12 @@ class JakesMiniSeq {
     loopIntervalId;
 
     constructor() {
-        this.score.music = new Array(this.totalBars * this.notesPerBar);
+        this.score.music = new Array(this.totalBars * this.beatsPerBar);
     }
 
     run() {
         this.loadSounds();
-        this.makeCavnas();
+        this.renderGrid();
         this.makeCtrls();
         this.urlToScore();
         MicroModal.init();
@@ -92,11 +92,7 @@ class JakesMiniSeq {
         }
     }
 
-    removeCanvas() {
-        this.scrollWrapper.innerHTML = '';
-    }
-
-    makeCavnas() {
+    renderGrid() {
         this.scrollWrapper = document.getElementById('scroll-wrapper');
         this.scrollWrapper.innerHTML = '';
 
@@ -113,7 +109,7 @@ class JakesMiniSeq {
         this.tick.ctx = this.tick.canvas.getContext('2d');
 
         this.tick.canvas.width = this.note.canvas.width = this.score.canvas.width =
-            this.note.size.x * this.totalBars * this.notesPerBar;
+            this.note.size.x * this.totalBars * this.beatsPerBar;
         
         this.tick.canvas.height = this.note.canvas.height = this.score.canvas.height 
             = this.note.size.y * this.config.totalOctaves * this.config.scales[this.scale].length;
@@ -135,11 +131,11 @@ class JakesMiniSeq {
         let beatIndex = 0;
 
         for (let bar = 0; bar < this.totalBars; bar++) {
-            for (let beatInBar = 0; beatInBar < this.notesPerBar; beatInBar++) {
+            for (let beatInBar = 0; beatInBar < this.beatsPerBar; beatInBar++) {
                 this.score.music[beatIndex] = this.score.music[beatIndex] || {};
                 this.score.ctx.beginPath();
                 this.score.ctx.strokeStyle = "white";
-                if (beatIndex % this.notesPerBar === 0 && beatIndex !== 0) {
+                if (beatIndex % this.beatsPerBar === 0 && beatIndex !== 0) {
                     this.score.ctx.lineWidth = 2;
                 } else {
                     this.score.ctx.lineWidth = 1;
@@ -190,24 +186,22 @@ class JakesMiniSeq {
             this.loadSounds();
         });
         
-        const bib = document.getElementById('beats-in-bar-ctrl');
-        bib.value = this.notesPerBar;
+        const bib = document.getElementById('beats-per-bar-ctrl');
+        bib.value = this.beatsPerBar;
         bib.addEventListener('change', (e) => {
-            this.beatInBar = e.target.options[e.target.selectedIndex].value;
-            this.removeCanvas();
-            this.makeCavnas();
+            this.beatsPerBar = e.target.options[e.target.selectedIndex].value;
+            this.renderGrid();
             this.renderScore();
         });
+
 
         const tbc = document.getElementById('total-bars-ctrl');
         tbc.value = this.totalBars;
         tbc.addEventListener('change', (e) => {
             this.totalBars = e.target.options[e.target.selectedIndex].value;
-            this.removeCanvas();
-            this.makeCavnas();
+            this.renderGrid();
             this.renderScore();
         });
-        tbc.value = this.totalBars;
 
         ctrls.addEventListener('click', (e) => {
             if (e.target.classList.contains('playing')) {
@@ -307,7 +301,7 @@ class JakesMiniSeq {
     }
 
     nextTick() {
-        const lengthToPlay = this.totalBars * this.notesPerBar; // this.score.music.length;
+        const lengthToPlay = this.totalBars * this.beatsPerBar; // this.score.music.length;
         if (this.tick.now > 4 && this.tick.now  < lengthToPlay - 4) {
             this.scrollWrapper.scrollBy({
                 left: this.note.size.x,
