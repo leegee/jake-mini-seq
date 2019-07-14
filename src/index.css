@@ -52,3 +52,10 @@ body {
 .playing { }
 .paused { } 
 */
+
+fieldset {
+    font-size: 10pt;
+    width: auto;
+    display: inline-block;
+    text-align: center;
+}

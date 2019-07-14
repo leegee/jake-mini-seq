@@ -182,20 +182,38 @@ class JakesMiniSeq {
         ctrls.id = 'ctrls';
         ctrls.innerHTML = `
         <span id='rewind-ctrl' class='rewind'>◀</span>
-        <span id='play-ctrl' class='paused'></span>
+        <span id='play-ctrl' class='paused'>❚❚</span>
         <span id='save-ctrl'>💾</span>
-        <input type='range' id='tempo-ms' min=10 max=1000 step=25 value=${this.tempoMs}>
+        
+        <fieldset>
+            <legend>Tempo</legend>
+            <input type='range' id='tempo-ms' min=10 max=1000 step=25 value=${this.tempoMs}>
+        </fieldset>
+
         <select id='instrument-ctrl'>
             <option value='acoustic_grand_piano'>Piano</option>
             <option value='X'>X</option>
         </select>
-        <select id='total-bars-ctrl'>
-            <option value='4'>4</option>
-            <option value='8'>8</option>
-            <option value='12'>12</option>
-            <option value='24'>24</option>
-        </select>
-        
+
+        <fieldset>
+            <legend>Beats per bar</legend>
+            <select id='beats-in-bar-ctrl'>
+                <option value='3'>3</option>
+                <option value='4'>4</option>
+                <option value='5'>5</option>
+                <option value='7'>7</option>
+            </select>
+        </fieldset>
+
+        <fieldset>
+            <legend>Total bars</legend>
+            <select id='total-bars-ctrl'>
+                <option value='4'>4</option>
+                <option value='8'>8</option>
+                <option value='12'>12</option>
+                <option value='24'>24</option>
+            </select>
+        </fieldset>
         `;
         document.body.appendChild(ctrls);
         this.ctrls.playCtrl = document.getElementById('play-ctrl');
@@ -205,6 +223,15 @@ class JakesMiniSeq {
             this.loadSounds();
         });
         
+        const bib = document.getElementById('beats-in-bar-ctrl');
+        bib.addEventListener('change', (e) => {
+            this.beatInBar = e.target.options[e.target.selectedIndex].value;
+            this.removeCanvas();
+            this.makeCavnas();
+            this.renderScore();
+        });
+        tbc.value = this.totalBars;
+
         const tbc = document.getElementById('total-bars-ctrl');
         tbc.addEventListener('change', (e) => {
             this.totalBars = e.target.options[e.target.selectedIndex].value;
