@@ -1,6 +1,8 @@
-import css from './index.css';
+import './index.css';
+import './modal.css';
 
 import { Howl, Howler } from 'howler';
+import MicroModal from 'micromodal';
 
 document.addEventListener('DOMContentLoaded', () => {
     new JakesMiniSeq().run();
@@ -70,6 +72,7 @@ class JakesMiniSeq {
         this.makeCavnas();
         this.makeCtrls();
         this.urlToScore();
+        MicroModal.init();
         this.stopLoop();
     }
 
@@ -90,12 +93,12 @@ class JakesMiniSeq {
     }
 
     removeCanvas() {
-        this.scrollWrapper.parentNode.removeChild(this.scrollWrapper);
+        this.scrollWrapper.innerHTML = '';
     }
 
     makeCavnas() {
-        this.scrollWrapper = document.createElement('section');
-        this.scrollWrapper.setAttribute('id', 'scroll-wrapper');
+        this.scrollWrapper = document.getElementById('scroll-wrapper');
+        this.scrollWrapper.innerHTML = '';
 
         this.score.canvas = document.createElement('canvas');
         this.score.canvas.setAttribute('id', 'score');
@@ -179,46 +182,7 @@ class JakesMiniSeq {
     }
 
     makeCtrls() {
-        const ctrls = document.createElement('aside');
-        ctrls.id = 'ctrls';
-        ctrls.innerHTML = `
-        <span id='rewind-ctrl' class='rewind'>◀</span>
-        <span id='play-ctrl' class='paused'>❚❚</span>
-        <span id='save-ctrl'>💾</span>
-        
-        <fieldset>
-            <legend>Tempo</legend>
-            <input type='range' id='tempo-ms' min=10 max=1000 step=25 value=${this.tempoMs}>
-        </fieldset>
-
-        <fieldset>
-            <legend>Instrument</legend>
-            <select id='instrument-ctrl'>
-                <option value='acoustic_grand_piano'>Piano</option>
-            </select>
-        </fieldset>
-
-        <fieldset>
-            <legend>Beats per bar</legend>
-            <select id='beats-in-bar-ctrl'>
-                <option value='3'>3</option>
-                <option value='4'>4</option>
-                <option value='5'>5</option>
-                <option value='7'>7</option>
-            </select>
-        </fieldset>
-
-        <fieldset>
-            <legend>Total bars</legend>
-            <select id='total-bars-ctrl'>
-                <option value='4'>4</option>
-                <option value='8'>8</option>
-                <option value='12'>12</option>
-                <option value='24'>24</option>
-            </select>
-        </fieldset>
-        `;
-        document.body.appendChild(ctrls);
+        const ctrls = document.getElementById('ctrls');
         this.ctrls.playCtrl = document.getElementById('play-ctrl');
         
         document.getElementById('instrument-ctrl').addEventListener('change', (e) => {
