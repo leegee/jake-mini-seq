@@ -25,7 +25,13 @@ class JakesMiniSeq {
         scales: {
             major: [
                 'C', 'D', 'E', 'F', 'G', 'A', 'B'
-            ]
+            ],
+            minor: [
+                'A', 'B', 'C', 'D', 'E', 'F', 'G'
+            ],
+            phyrigian: [
+                'E', 'F', 'G', 'A', 'B'
+            ],
         }
     };
     notes = {
@@ -56,7 +62,7 @@ class JakesMiniSeq {
         ctx: undefined,
         music: []
     };
-    ctrls = { 
+    ctrls = {
         playCtrl: null,
     };
     scrollWrapper;
@@ -83,9 +89,9 @@ class JakesMiniSeq {
                 console.debug('Loading oct %d note %d :', octave, note, noteName);
                 this.sounds[noteName] = new Howl({
                     src: [
-                        this.config.soundsDir + '/' + 
-                            this.instrument + this.config.instrumentSuffix + '/' + 
-                            noteName + '.mp3'
+                        this.config.soundsDir + '/' +
+                        this.instrument + this.config.instrumentSuffix + '/' +
+                        noteName + '.mp3'
                     ]
                 });
             }
@@ -94,12 +100,12 @@ class JakesMiniSeq {
 
     renderGrid() {
         this.scrollWrapper = document.getElementById('scroll-wrapper');
-        
+
         const elements = this.scrollWrapper.querySelectorAll('canvas');
         elements.forEach(el => {
             this.scrollWrapper.removeChild(el);
         });
-        
+
         this.score.canvas = document.createElement('canvas');
         this.score.canvas.setAttribute('id', 'score');
         this.score.ctx = this.score.canvas.getContext('2d');
@@ -114,8 +120,8 @@ class JakesMiniSeq {
 
         this.tick.canvas.width = this.notes.canvas.width = this.score.canvas.width =
             this.notes.size.x * this.totalBars * this.beatsPerBar;
-        
-        this.tick.canvas.height = this.notes.canvas.height = this.score.canvas.height 
+
+        this.tick.canvas.height = this.notes.canvas.height = this.score.canvas.height
             = this.notes.size.y * this.config.totalOctaves * this.config.scales[this.scale].length;
 
         this.scrollWrapper.style.height = this.tick.canvas.height + 'px';
@@ -187,12 +193,12 @@ class JakesMiniSeq {
     makeCtrls() {
         const ctrls = document.getElementById('ctrls');
         this.ctrls.playCtrl = document.getElementById('play-ctrl');
-        
+
         document.getElementById('instrument-ctrl').addEventListener('change', (e) => {
             this.instrument = e.target.options[e.target.selectedIndex].value;
             this.loadSounds();
         });
-        
+
         const bib = document.getElementById('beats-per-bar-ctrl');
         bib.value = this.beatsPerBar;
         bib.addEventListener('change', (e) => {
@@ -201,6 +207,18 @@ class JakesMiniSeq {
             this.renderScore();
         });
 
+        const scaleCtrl = document.getElementById('scale-ctrl');
+        Object.keys(this.config.scales).forEach(scaleName => {
+            const option = document.createElement('option');
+            option.value = option.text = scaleName;
+            scaleCtrl.add(option);
+        });
+        scaleCtrl.value = this.scale;
+        scaleCtrl.addEventListener('change', (e) => {
+            this.scale = e.target.options[e.target.selectedIndex].value;
+            this.renderGrid();
+            this.renderScore();
+        });
 
         const tbc = document.getElementById('total-bars-ctrl');
         tbc.value = this.totalBars;
@@ -222,7 +240,7 @@ class JakesMiniSeq {
             }
             else if (e.target.id === 'rewind-ctrl') {
                 this.rewindLoop();
-            } 
+            }
             else if (e.target.id === 'tempo-ms') {
                 console.log(e.target.value)
                 this.tempoMs = Number(e.target.value);
@@ -311,7 +329,7 @@ class JakesMiniSeq {
 
     nextTick() {
         const lengthToPlay = this.totalBars * this.beatsPerBar; // this.score.music.length;
-        if (this.tick.now > 4 && this.tick.now  < lengthToPlay - 4) {
+        if (this.tick.now > 4 && this.tick.now < lengthToPlay - 4) {
             this.scrollWrapper.scrollBy({
                 left: this.notes.size.x,
                 top: 0,
