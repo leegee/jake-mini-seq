@@ -23,6 +23,7 @@ module.exports = {
     }),
     new CopyPlugin([
       {from: 'assets/soundfont/acoustic_grand_piano-mp3/**'},
+      
       // {from: 'assets/soundfont/acoustic_grand_piano-mp3.js', to: 'assets/soundfont/acoustic_grand_piano-mp3.js'},
       // {from: 'assets/soundfont/acoustic_grand_piano-ogg.js', to: 'assets/soundfont/acoustic_grand_piano-ogg.js'}
     ]),
