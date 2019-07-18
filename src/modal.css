@@ -1,0 +1,57 @@
+.modal {
+    display: none;
+    z-index:999;
+    background-color: #42138399;
+    position: absolute;
+    top: 0; 
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    font-size: 24pt;
+}
+
+#modal-settings-inner {
+    background-color: #421383;
+    position: relative;
+    top: 2em;
+    margin: auto;
+    padding: 1em;
+    max-width: 20em;
+    box-shadow: 4px 4px 5px 5px rgba(0,0,0,0.25);
+}
+
+.modal fieldset {
+    border:0;
+    max-width: 15em;
+    margin: auto;
+
+}
+
+.modal label {
+    display: inline-block;
+    width:6em;
+    text-align: right;
+    margin-right: 1em;
+}
+
+.modal select {
+    font-size: 24pt;
+}
+
+.modal.is-open {
+    display: block;
+}
+
+
+.modal fieldset {
+    font-family: 'Sunshiney', cursive;
+}
+
+.modal footer {
+    margin-top: 1em;
+    text-align: center;
+}
+.modal footer button {
+    font-size: 24pt;
+}

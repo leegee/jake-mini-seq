@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title><%= htmlWebpackPlugin.options.title %></title>
+</head>
+
+<body>
+    <h1>Jakab's Tiny Sequencer</h1>
+
+    <main id='scroll-wrapper'></main>
+
+    <aside id='ctrls'>
+        <span id='rewind-ctrl' class='rewind'>◀</span>
+        <span id='play-ctrl' class='paused'>❚❚</span>
+        <span id='save-ctrl'>💾</span>
+        <span id='modal-ctrl' data-micromodal-trigger='modal-settings'>⚙</span>
+        <span id='tempo-ctrl'>
+            fast<input alt='Tempo' type='range' id='tempo-ms' min=10 max=1000 step=25 value=${this.tempoMs}>slow
+        </span>
+    </aside>
+
+    <aside id="modal-settings" aria-hidden="true" class='modal'>
+        <div tabindex="-1" data-micromodal-close>
+            <div id='modal-settings-inner' role="dialog" aria-modal="true" aria-labelledby="modal-settings-title">
+                <header>
+                    <h2 id="modal-settings-title"> Settings </h2>
+                </header>
+                <div id="modal-settings-content">
+
+                    <fieldset>
+                        <label>Instrument</label>
+                        <select id='instrument-ctrl'>
+                            <option value='acoustic_grand_piano'>Piano</option>
+                        </select>
+                    </fieldset>
+
+                    <fieldset>
+                        <label>Beats per bar</label>
+                        <select id='beats-per-bar-ctrl'>
+                            <option value='3'>3</option>
+                            <option value='4'>4</option>
+                            <option value='5'>5</option>
+                            <option value='7'>7</option>
+                        </select>
+                    </fieldset>
+
+                    <fieldset>
+                        <label>Total bars</label>
+                        <select id='total-bars-ctrl'>
+                            <option value='4'>4</option>
+                            <option value='8'>8</option>
+                            <option value='12'>12</option>
+                            <option value='24'>24</option>
+                        </select>
+                    </fieldset>
+
+                </div>
+
+                <footer>
+                    <button aria-label="Close modal" data-micromodal-close>Close</button>
+                </footer>
+            </div>
+        </div>
+    </aside>
+</body>
+
+</html>
