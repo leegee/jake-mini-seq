@@ -99,7 +99,6 @@ class JakesMiniSeq {
         elements.forEach(el => {
             this.scrollWrapper.removeChild(el);
         });
-        debugger;
         
         this.score.canvas = document.createElement('canvas');
         this.score.canvas.setAttribute('id', 'score');
