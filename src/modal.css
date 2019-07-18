@@ -55,3 +55,9 @@
 .modal footer button {
     font-size: 24pt;
 }
+
+input, select, button,
+input[type='range']::-moz-range-track {
+    color: #42138399;
+    background: #e2d2fadc;
+}
