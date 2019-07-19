@@ -15,7 +15,7 @@ class JakesMiniSeq {
     static dataUriPrefix = 'data:text/plain;base64,';
     scale = 'major';
     tempoMs = 200;
-    editingInstrument = 'acoustic_grand_piano';
+    currentInstrument = 'acoustic_grand_piano';
     beatsPerBar = 4;
     totalBars = 8;
     config = {
@@ -33,6 +33,9 @@ class JakesMiniSeq {
         rootOctave: 3,
         totalOctaves: 3,
         scales: {
+            chromatic: [
+                'C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'
+            ],
             major: [
                 'C', 'D', 'E', 'F', 'G', 'A', 'B'
             ],
@@ -81,7 +84,7 @@ class JakesMiniSeq {
     }
 
     run() {
-        this.loadSounds(this.editingInstrument);
+        this.addInstrument(this.currentInstrument);
         this.renderGrid();
         this.makeCtrls();
         this.urlTogrid();
@@ -89,12 +92,17 @@ class JakesMiniSeq {
         this.stopLoop();
     }
 
+    addInstrument(instrumentName) {
+        this.currentInstrument = instrumentName;
+        this.loadSounds(this.currentInstrument);
+    }
+
     loadSounds(editingInstrument) {
         let loading = [];
 
         for (let octave = 0; octave < this.config.totalOctaves; octave++) {
-            for (let note = 0; note < this.config.scales[this.scale].length; note++) {
-                const noteName = this.config.scales[this.scale][note] + (this.config.rootOctave + octave);
+            for (let note = 0; note < this.config.scales.chromatic.length; note++) {
+                const noteName = this.config.scales.chromatic[note] + (this.config.rootOctave + octave);
                 console.debug('Loading oct %d note %d :', octave, note, noteName);
 
                 loading.push(new Promise((resolve, reject) => {
@@ -216,8 +224,8 @@ class JakesMiniSeq {
         this.ctrls.playCtrl = document.getElementById('play-ctrl');
 
         document.getElementById('instrument-ctrl').addEventListener('change', (e) => {
-            this.editingInstrument = e.target.options[e.target.selectedIndex].value;
-            this.loadSounds(this.editingInstrument);
+            this.currentInstrument = e.target.options[e.target.selectedIndex].value;
+            this.loadSounds(this.currentInstrument);
         });
 
         const bib = document.getElementById('beats-per-bar-ctrl');
@@ -225,7 +233,7 @@ class JakesMiniSeq {
         bib.addEventListener('change', (e) => {
             this.beatsPerBar = e.target.options[e.target.selectedIndex].value;
             this.renderGrid();
-            this.renderNotes();
+            this.renderNotesArray();
         });
 
         const scaleCtrl = document.getElementById('scale-ctrl');
@@ -238,7 +246,7 @@ class JakesMiniSeq {
         scaleCtrl.addEventListener('change', (e) => {
             this.scale = e.target.options[e.target.selectedIndex].value;
             this.renderGrid();
-            this.renderNotes();
+            this.renderNotesArray();
         });
 
         const tbc = document.getElementById('total-bars-ctrl');
@@ -246,7 +254,7 @@ class JakesMiniSeq {
         tbc.addEventListener('change', (e) => {
             this.totalBars = e.target.options[e.target.selectedIndex].value;
             this.renderGrid();
-            this.renderNotes();
+            this.renderNotesArray();
         });
 
         ctrls.addEventListener('click', (e) => {
@@ -423,7 +431,7 @@ class JakesMiniSeq {
                     this.beatsPerBar = 4;
                 }
 
-                this.renderNotes();
+                this.renderNotesArray();
             } 
             
             catch (e) {
@@ -432,7 +440,7 @@ class JakesMiniSeq {
         }
     }
 
-    renderNotes() {
+    renderNotesArray() {
         this.notes.music.forEach((tick, beatIndex) => {
             if (tick) {
                 Object.keys(tick).forEach(noteName => {
