@@ -16,6 +16,8 @@ class JakesMiniSeq {
     beatsPerBar = 4;
     totalBars = 8;
     config = {
+        totalBarsSupported: 12,
+        beatsPerBarSupported: 9,
         soundsDir: './assets/soundfont/',
         instrumentSuffix: '-mp3',
         delay: 0,
@@ -70,7 +72,7 @@ class JakesMiniSeq {
     loopIntervalId;
 
     constructor() {
-        this.score.music = new Array(this.totalBars * this.beatsPerBar);
+        this.score.music = new Array(this.config.totalBarsSupported * this.config.beatsPerBarSupported);
     }
 
     run() {
@@ -382,16 +384,30 @@ class JakesMiniSeq {
 
     urlToScore() {
         if (document.location.search.length > 1) {
-            const jsonStr = atob(
-                document.location.search.substr(1)
-            ).substr(JakesMiniSeq.dataUriPrefix.length);
+            try {
+                const jsonStr = atob(
+                    document.location.search.substr(1)
+                ).substr(JakesMiniSeq.dataUriPrefix.length);
 
-            const fromUri = JSON.parse(jsonStr);
-            this.score.music = fromUri.music;
-            this.scale = fromUri.scale;
-            this.tempoMs = fromUri.tempoMs;
+                const fromUri = JSON.parse(jsonStr);
 
-            this.renderScore();
+                this.totalBars = fromUri.totalBars;
+                this.beatsPerBar = fromUri.beatsPerBar;
+                this.score.music = fromUri.music;
+                this.scale = fromUri.scale;
+                this.tempoMs = fromUri.tempoMs;
+
+                if (this.totalBars > this.totalBarsSupported){
+                    this.totalBars = this.totalBarsSupported;
+                }
+                if (this.beatsPerBar > this.beatsPerBarSupported){
+                    this.beatsPerBar = 4;
+                }
+
+                this.renderScore();
+            } catch (e) {
+                alert('The document location entered does not contain valid music.');
+            }
         }
     }
 
