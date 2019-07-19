@@ -1,14 +1,21 @@
 const path = require('path');
+const fs = require('fs');
+
+const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyPlugin = require('copy-webpack-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+
+const soundList = fs.readdirSync(
+  path.join(__dirname, 'assets/soundfont/')
+).filter(dirent => dirent.isDirectory());
 
 module.exports = (env, argv) => {
   return {
     entry: './src/index.js',
     output: {
       filename: 'main.js',
-      path: path.resolve(__dirname, 'dist')
+      path: path.join(__dirname, 'dist')
     },
     devServer: {
       contentBase: path.join(__dirname, 'dist'),
@@ -21,6 +28,9 @@ module.exports = (env, argv) => {
       })],
     },
     plugins: [
+      new webpack.DefinePlugin({
+        SOUND_LIST: JSON.stringify(soundList)
+      }),
       new HtmlWebpackPlugin({
         title: "Jakab's Tiny Sequencer",
         'meta': {

@@ -14,7 +14,8 @@ body {
     overflow: auto;
 }
 
-h1, h2 {
+h1,
+h2 {
     font-family: 'Sunshiney', cursive;
     opacity: 0.5;
     text-align: center;
@@ -29,12 +30,17 @@ h1, h2 {
     position: relative;
 }
 
-#scroll-wrapper > canvas {
+#scroll-wrapper>canvas {
     position: absolute;
     z-index: 1;
-    top: 0; 
-    left: 50%;
-    transform: translate(-50%, 0);
+    top: 0;
+}
+
+@media only screen and (min-width: 1000px) {
+    #scroll-wrapper>canvas {
+        left: 50%;
+        transform: translate(-50%, 0);
+    }
 }
 
 #tick,
@@ -51,8 +57,13 @@ h1, h2 {
     bottom: 0;
     font-size: 24pt;
     z-index: 100;
-    left: 50%;
-    transform: translate(-50%, 0);
+}
+
+@media only screen and (min-width: 1000px) {
+    #ctrls {
+        left: 50%;
+        transform: translate(-50%, 0);
+    }
 }
 
 #ctrls span,
@@ -70,7 +81,7 @@ h1, h2 {
     width: 1em;
     height: 1em;
     line-height: 1em;
-    cursor:pointer;
+    cursor: pointer;
 }
 
 #tempo-ctrl {
@@ -78,7 +89,8 @@ h1, h2 {
     font-size: 12pt;
     white-space: nowrap;
 }
-#tempo-ctrl > * {
+
+#tempo-ctrl>* {
     vertical-align: middle;
 }
 
@@ -88,4 +100,3 @@ h1, h2 {
 .playing { }
 .paused { } 
 */
-
