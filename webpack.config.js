@@ -7,7 +7,8 @@ const CopyPlugin = require('copy-webpack-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 const soundList = fs.readdirSync(
-  path.join(__dirname, 'assets/soundfont/')
+  path.join(__dirname, 'assets/soundfont/'),
+  { withFileTypes: true }
 ).filter(dirent => dirent.isDirectory());
 
 module.exports = (env, argv) => {
