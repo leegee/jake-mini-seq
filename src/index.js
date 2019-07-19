@@ -397,10 +397,10 @@ class JakesMiniSeq {
                 this.scale = fromUri.scale;
                 this.tempoMs = fromUri.tempoMs;
 
-                if (this.totalBars > this.totalBarsSupported){
+                if (this.totalBars > this.totalBarsSupported) {
                     this.totalBars = this.totalBarsSupported;
                 }
-                if (this.beatsPerBar > this.beatsPerBarSupported){
+                if (this.beatsPerBar > this.beatsPerBarSupported) {
                     this.beatsPerBar = 4;
                 }
 

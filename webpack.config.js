@@ -1,6 +1,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyPlugin = require('copy-webpack-plugin');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = {
   entry: './src/index.js',
@@ -13,6 +14,11 @@ module.exports = {
     compress: true,
     port: 9000
   },
+  optimization: {
+    minimizer: [new UglifyJsPlugin({
+      sourceMap: process.env.NODE_ENV == 'development'? true : false,
+    })],
+  },
   plugins: [
     new HtmlWebpackPlugin({
       title: "Jakab's Tiny Sequencer",
@@ -22,8 +28,8 @@ module.exports = {
       }
     }),
     new CopyPlugin([
-      {from: 'assets/soundfont/acoustic_grand_piano-mp3/**'},
-      
+      { from: 'assets/soundfont/acoustic_grand_piano-mp3/**' },
+
       // {from: 'assets/soundfont/acoustic_grand_piano-mp3.js', to: 'assets/soundfont/acoustic_grand_piano-mp3.js'},
       // {from: 'assets/soundfont/acoustic_grand_piano-ogg.js', to: 'assets/soundfont/acoustic_grand_piano-ogg.js'}
     ]),
@@ -46,7 +52,7 @@ module.exports = {
             plugins: ['@babel/plugin-proposal-class-properties']
           }
         }
-      }      
+      }
     ],
   }
 };
