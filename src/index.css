@@ -50,10 +50,12 @@ canvas {
 
 .notes {
     z-index: 50;
+    opacity: 0.5;
 }
 
 .activeInstrument {
     z-index: 100;
+    opacity: 0.8;
 }
 
 #ctrls {
@@ -71,8 +73,7 @@ canvas {
     }
 }
 
-#ctrls span,
-#ctrls fieldset {
+#ctrls span {
     float: left;
     padding: 0.2em;
     text-align: center;

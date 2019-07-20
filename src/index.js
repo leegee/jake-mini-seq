@@ -51,26 +51,26 @@ class JakesMiniSeq {
         instruments: [
             { name: 'acoustic_grand_piano', rootOctave: 3, glyph: '🎹' },
             { name: 'celesta', rootOctave: 3, glyph: '🎹' },
-            { name: 'choir_aahs', rootOctave: 3, glyph: '' },
+            { name: 'choir_aahs', rootOctave: 3, glyph: '👩‍🎤' },
             { name: 'electric_bass_pick', rootOctave: 1, glyph: '𝄢' }, 
+            { name: 'slap_bass_1', rootOctave: 1, glyph: '!' },
+            { name: 'synth_bass_1', rootOctave: 1, glyph: '𝄢' },
             { name: 'koto', rootOctave: 3, glyph: 'ぁ' },
-            { name: 'lead_1_square', rootOctave: 3, glyph: '' },
-            { name: 'lead_2_sawtooth', rootOctave: 3, glyph: '' },
-            { name: 'lead_7_fifths', rootOctave: 3, glyph: '' },
-            { name: 'ocarina', rootOctave: 3, glyph: '' },
+            // { name: 'lead_1_square', rootOctave: 3, glyph: '🎹' },
+            { name: 'lead_2_sawtooth', rootOctave: 3, glyph: '🎹' },
+            { name: 'lead_7_fifths', rootOctave: 3, glyph: '🎹' },
+            { name: 'ocarina', rootOctave: 3, glyph: '🎺' },
             { name: 'overdriven_guitar', rootOctave: 3, glyph: '🎸' },
-            { name: 'pad_1_new_age', rootOctave: 3, glyph: '🎻' },
+            { name: 'pad_1_new_age', rootOctave: 3, glyph: '♒' },
             { name: 'pad_7_halo', rootOctave: 3, glyph: '🎻' },
-            { name: 'pad_8_sweep', rootOctave: 3, glyph: '🎻' },
+            { name: 'pad_8_sweep', rootOctave: 3, glyph: '😮' },
             { name: 'percussive_organ', rootOctave: 3, glyph: '' },
             { name: 'pizzicato_strings', rootOctave: 3, glyph: '🎻' },
-            { name: 'slap_bass_1', rootOctave: 3, glyph: '𝄢' },
-            { name: 'synth_bass_1', rootOctave: 3, glyph: '𝄢' },
-            { name: 'synth_bass_2', rootOctave: 3, glyph: '𝄢' },
-            { name: 'synth_drum', rootOctave: 3, glyph: '🥁' },
-            { name: 'tango_accordion', rootOctave: 3, glyph: '' },
-            { name: 'vibraphone', rootOctave: 3, glyph: '' },
-            { name: 'woodblock', rootOctave: 3, glyph: '' },
+            // { name: 'synth_bass_2', rootOctave: 1, glyph: '𝄢' },
+            { name: 'synth_drum', rootOctave: 1, glyph: '🥁' },
+            // { name: 'tango_accordion', rootOctave: 3, glyph: '' },
+            // { name: 'vibraphone', rootOctave: 3, glyph: '' },
+            { name: 'woodblock', rootOctave: 3, glyph: '👏' },
         ],
         noteSize: {
             x: 30,
@@ -448,8 +448,10 @@ class JakesMiniSeq {
             });
         }
 
-
         this.noteLayers.forEach( (noteLayer, noteLayerIndex) => {
+            // Object.keys(this.noteLayers[noteLayerIndex].music[this.tick.previous]).forEach(noteName => {
+            //     this.sounds[noteLayerIndex][noteName].stop();
+            // });
             Object.keys(this.noteLayers[noteLayerIndex].music[this.tick.now]).forEach(noteName => {
                 this.sounds[noteLayerIndex][noteName].play();
             });
