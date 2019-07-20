@@ -2,6 +2,8 @@
 
 :root {
     --pageBg: #421383;
+    --buttonBg: white;
+    --buttonFg: #421383;
     color: white;
 }
 
@@ -25,7 +27,6 @@ h2 {
     -webkit-overflow-scrolling: touch;
     display: flex;
     flex-wrap: nowrap;
-    /* overflow-y: auto; */
     overflow: auto;
     position: relative;
 }
@@ -96,6 +97,31 @@ canvas {
 
 #tempo-ctrl>* {
     vertical-align: middle;
+}
+
+#instrument-switch-ctrls {
+    position: fixed;
+    bottom: 4em;
+    z-index: 100;
+    font-size: 14pt;
+    /* transform-origin: 0 0;
+    transform: rotate(90deg); */
+    width: 100%;
+}
+
+#instrument-switch-ctrls button {
+    text-align: center;
+    vertical-align: middle;
+    background-color: var(--buttonBg);
+    margin-right: 0.5rem;
+    border-radius: 10%;
+    padding: 0;
+    border: none;
+    outline: none;
+    font-size: 14pt;
+    width: 18pt;
+    height: 18pt;
+    line-height: 18pt;
 }
 
 /* 
