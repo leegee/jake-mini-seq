@@ -9,7 +9,8 @@ const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const soundList = fs.readdirSync(
   path.join(__dirname, 'assets/soundfont/'),
   { withFileTypes: true }
-).filter(dirent => dirent.isDirectory());
+).filter(dirent => dirent.isDirectory())
+  .map(dirent => dirent.name.replace(/-mp3$/, ''));
 
 module.exports = (env, argv) => {
   return {

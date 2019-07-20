@@ -55,12 +55,13 @@ h2 {
 #ctrls {
     position: fixed;
     bottom: 0;
-    font-size: 24pt;
     z-index: 100;
+    font-size: 14pt;
 }
 
 @media only screen and (min-width: 1000px) {
     #ctrls {
+        font-size: 24pt;
         left: 50%;
         transform: translate(-50%, 0);
     }
