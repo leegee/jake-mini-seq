@@ -43,7 +43,10 @@ class JakesMiniSeq {
     beatsPerBar = 4;
     totalBars = 8;
     config = {
-        totalNoteLayers: 1,
+        noteLayerInstrumentNames: [
+            'acoustic_grand_piano',
+            'electric_bass_pick'
+        ],
         noteSize: {
             x: 30,
             y: 20,
@@ -90,7 +93,7 @@ class JakesMiniSeq {
     loopIntervalId;
 
     constructor() {
-        for (let i = 0; i < this.config.totalNoteLayers; i++) {
+        for (let i = 0; i < this.config.noteLayerInstrumentNames.length; i++) {
             this.noteLayers.push(
                 new NoteLayer(
                     this.config.totalBarsSupported,
@@ -101,17 +104,19 @@ class JakesMiniSeq {
     }
 
     run() {
-        this.addInstrument(this.activeInstrument);
+        MicroModal.init();
+        this.loadSounds(this.activeInstrument);
         this.renderGrid();
         this.makeCtrls();
         this.urlTogrid();
-        MicroModal.init();
+        this.setActiveInstrument(this.activeInstrument);
         this.stopLoop();
     }
 
-    addInstrument(instrumentIndex) {
-        this.activeInstrument = instrumentIndex;
-        this.loadSounds(this.activeInstrument);
+    setActiveInstrument(activeInstrument){
+        this.noteLayers[activeInstrument].canvas.classList.remove('activeInstrument');
+        this.activeInstrument = activeInstrument;
+        this.noteLayers[activeInstrument].canvas.classList.add('activeInstrument');
     }
 
     loadSounds(instrumentIndex) {
@@ -173,9 +178,10 @@ class JakesMiniSeq {
         this.tick.canvas.height = this.grid.canvas.height
             = this.config.noteSize.y * this.config.totalOctaves * this.config.scales[this.scale].length;
 
+        console.log('noteLayers.length', this.noteLayers.length);
         for (let i = 0; i < this.noteLayers.length; i++) {
             this.noteLayers[i].canvas = document.createElement('canvas');
-            this.noteLayers[i].canvas.setAttribute('id', 'notes');
+            this.noteLayers[i].canvas.classList.add('notes');
             this.noteLayers[i].ctx = this.noteLayers[i].canvas.getContext('2d');
             this.noteLayers[i].canvas.width = this.grid.canvas.width;
             this.noteLayers[i].canvas.height = this.grid.canvas.height;
@@ -244,6 +250,7 @@ class JakesMiniSeq {
     }
 
     setNoteCanvasListener() {
+        console.log('setNoteCanvasListener', this.activeInstrument);
         this.noteLayers[this.activeInstrument].canvas.addEventListener('click', this.clickGrid.bind(this));
     }
 

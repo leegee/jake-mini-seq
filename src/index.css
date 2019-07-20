@@ -30,14 +30,13 @@ h2 {
     position: relative;
 }
 
-#scroll-wrapper>canvas {
+canvas {
     position: absolute;
-    z-index: 1;
     top: 0;
 }
 
 @media only screen and (min-width: 1000px) {
-    #scroll-wrapper>canvas {
+    canvas {
         left: 50%;
         transform: translate(-50%, 0);
     }
@@ -48,7 +47,11 @@ h2 {
     pointer-events: none;
 }
 
-#notes {
+.notes {
+    z-index: 50;
+}
+
+.activeInstrument {
     z-index: 100;
 }
 
