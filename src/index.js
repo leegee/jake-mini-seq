@@ -5,8 +5,6 @@ import MicroModal from 'micromodal';
 import './index.css';
 import './modal.css';
 
-// SOUND_LIST comes from webpack's readiing of assets/soundfont/
-
 document.addEventListener('DOMContentLoaded', () => {
     new JakesMiniSeq().run();
 });
@@ -47,7 +45,6 @@ class JakesMiniSeq {
     beatsPerBar = 4;
     totalBars = 8;
     config = {
-        noteLayerInstrumentNames: SOUND_LIST, // [ 'acoustic_grand_piano', 'electric_bass_pick' ],
         instruments: [
             { name: 'acoustic_grand_piano', rootOctave: 3, glyph: '🎹' },
             { name: 'celesta', rootOctave: 3, glyph: '🎹' },
@@ -56,7 +53,6 @@ class JakesMiniSeq {
             { name: 'slap_bass_1', rootOctave: 1, glyph: '!' },
             { name: 'synth_bass_1', rootOctave: 1, glyph: '𝄢' },
             { name: 'koto', rootOctave: 3, glyph: 'ぁ' },
-            // { name: 'lead_1_square', rootOctave: 3, glyph: '🎹' },
             { name: 'lead_2_sawtooth', rootOctave: 3, glyph: '🎹' },
             { name: 'lead_7_fifths', rootOctave: 3, glyph: '🎹' },
             { name: 'ocarina', rootOctave: 3, glyph: '🎺' },
@@ -64,12 +60,9 @@ class JakesMiniSeq {
             { name: 'pad_1_new_age', rootOctave: 3, glyph: '♒' },
             { name: 'pad_7_halo', rootOctave: 3, glyph: '🎻' },
             { name: 'pad_8_sweep', rootOctave: 3, glyph: '😮' },
-            { name: 'percussive_organ', rootOctave: 3, glyph: '' },
+            { name: 'percussive_organ', rootOctave: 3  },
             { name: 'pizzicato_strings', rootOctave: 3, glyph: '🎻' },
-            // { name: 'synth_bass_2', rootOctave: 1, glyph: '𝄢' },
             { name: 'synth_drum', rootOctave: 1, glyph: '🥁' },
-            // { name: 'tango_accordion', rootOctave: 3, glyph: '' },
-            // { name: 'vibraphone', rootOctave: 3, glyph: '' },
             { name: 'woodblock', rootOctave: 3, glyph: '👏' },
         ],
         noteSize: {
@@ -296,13 +289,13 @@ class JakesMiniSeq {
     makeCtrls() {
         const ctrls = document.getElementById('ctrls');
         this.ctrls.playCtrl = document.getElementById('play-ctrl');
-
+        this.ctrls.stopNotes = document.getElementById('stop-notes');
         this.instrumentSwitches = document.getElementById('instrument-switch-ctrls')
         this.config.instruments.forEach((instrument, instrumentIndex) => {
             const ctrl = document.createElement('button');
             ctrl.dataset.instrumentIndex = instrumentIndex;
             ctrl.title = instrument.name.replace(/[-_]/g, ' ');
-            ctrl.innerText = instrument.glyph || '♩'; // TODO Make a property of config.noteLayerInstrumentNames
+            ctrl.innerText = instrument.glyph || '♩'; 
             this.instrumentSwitches.appendChild(ctrl);
         });
         this.instrumentSwitches.addEventListener('click', (e) => {
@@ -449,9 +442,11 @@ class JakesMiniSeq {
         }
 
         this.noteLayers.forEach( (noteLayer, noteLayerIndex) => {
-            // Object.keys(this.noteLayers[noteLayerIndex].music[this.tick.previous]).forEach(noteName => {
-            //     this.sounds[noteLayerIndex][noteName].stop();
-            // });
+            if (this.ctrls.stopNotes.checked && typeof this.tick.previous !== 'undefined') {
+                Object.keys(this.noteLayers[noteLayerIndex].music[this.tick.previous]).forEach(noteName => {
+                    this.sounds[noteLayerIndex][noteName].stop();
+                });
+            }
             Object.keys(this.noteLayers[noteLayerIndex].music[this.tick.now]).forEach(noteName => {
                 this.sounds[noteLayerIndex][noteName].play();
             });

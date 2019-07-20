@@ -73,6 +73,10 @@ canvas {
     }
 }
 
+#ctrls label {
+    font-size: 12pt;
+}
+
 #ctrls span {
     float: left;
     padding: 0.2em;
@@ -102,6 +106,7 @@ canvas {
 
 #instrument-switch-ctrls {
     position: fixed;
+    text-align: center;
     bottom: 4em;
     z-index: 100;
     font-size: 14pt;
