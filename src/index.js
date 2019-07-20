@@ -33,6 +33,10 @@ class NoteLayer {
 
 class JakesMiniSeq {
     static dataUriPrefix = 'data:text/plain;base64,';
+    static instrumentSuffix = '-mp3';
+    static soundsDir = './assets/soundfont/';
+    static noteFileExtensions = ['mp3']; // TODO Add ogg for non-Chrome
+
     scale = 'major';
     tempoMs = 200;
     activeInstrument = 0;
@@ -47,8 +51,6 @@ class JakesMiniSeq {
         instruments: SOUND_LIST,
         totalBarsSupported: 12,
         beatsPerBarSupported: 9,
-        soundsDir: './assets/soundfont/',
-        instrumentSuffix: '-mp3',
         delay: 0,
         velocity: 127,
         rootOctave: 3,
@@ -120,23 +122,24 @@ class JakesMiniSeq {
         for (let octave = 0; octave < this.config.totalOctaves; octave++) {
             for (let note = 0; note < this.config.scales.chromatic.length; note++) {
                 const noteName = this.config.scales.chromatic[note] + (this.config.rootOctave + octave);
-                const filePath = this.config.soundsDir + '/' +
-                    instrumentName + this.config.instrumentSuffix + '/' +
-                    noteName + '.mp3';
+                JakesMiniSeq.noteFileExtensions.forEach( ext => {
+                    const filePath = JakesMiniSeq.soundsDir + '/' +
+                        instrumentName + JakesMiniSeq.instrumentSuffix + '/' +
+                        noteName + '.' + ext;
 
-                console.debug('Loading %s oct %d note %d :', instrumentName, octave, note, noteName, "\n", filePath);
+                    console.debug('Loading %s oct %d note %d :', instrumentName, octave, note, noteName, "\n", filePath);
 
-                loading.push(new Promise((resolve, reject) => {
-                    this.sounds[noteName] = new Howl({
-                        src: [filePath],
-                        onload: () => resolve(),
-                        onloaderror: (id, err) => {
-                            console.error(id, err);
-                            reject(rr)
-                        }
-                    });
-                }));
-
+                    loading.push(new Promise((resolve, reject) => {
+                        this.sounds[noteName] = new Howl({
+                            src: [filePath],
+                            onload: () => resolve(),
+                            onloaderror: (id, err) => {
+                                console.error(id, err);
+                                reject(rr)
+                            }
+                        });
+                    }));
+                });
             }
         }
 
