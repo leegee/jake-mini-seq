@@ -48,9 +48,10 @@ canvas {
     pointer-events: none;
 }
 
-.notes {
+.noteLayer {
     z-index: 50;
     opacity: 0.5;
+    border: 4pt solid;
 }
 
 .activeInstrument {
@@ -73,8 +74,8 @@ canvas {
     }
 }
 
-#ctrls span, 
-#ctrls legend {
+#ctrls span,
+#ctrls label {
     position: relative;
     float: left;
     padding: 0.2em;
@@ -86,11 +87,11 @@ canvas {
     line-height: 1em;
     cursor: pointer;
     vertical-align: middle;
+    font-size: 12pt;
 }
 
-#ctrls legend {
-    font-size: 12pt;
-    white-space: nowrap;
+#ctrls span {
+    font-size: 18pt;
 }
 
 /* #tempo-ctrl { } */
@@ -99,15 +100,21 @@ canvas {
     vertical-align: middle;
 }
 
+main {
+    position: relative;
+    height: auto;
+    width: 100%;
+    overflow: auto;
+    height: auto;
+}
+
 #instrument-switch-ctrls {
     position: fixed;
-    text-align: center;
-    bottom: 6em;
     z-index: 100;
     font-size: 14pt;
-    /* transform-origin: 0 0;
-    transform: rotate(90deg); */
     width: 100%;
+    text-align: center;
+    margin-top: 1rem;
 }
 
 #instrument-switch-ctrls button {
@@ -117,7 +124,7 @@ canvas {
     margin-right: 0.5rem;
     border-radius: 10%;
     padding: 0;
-    border: none;
+    border: 2pt solid;
     outline: none;
     font-size: 14pt;
     width: 18pt;
@@ -125,9 +132,37 @@ canvas {
     line-height: 18pt;
 }
 
-/* 
-#play-ctrl { }
-#save-ctrl { }
-.playing { }
-.paused { } 
-*/
+#instrument-switch-ctrls button.active:before {
+    content:'▲';
+    color: var(--activeInstrumentColour);
+    position: absolute;
+    top: -20px;
+}
+
+
+#instrument-switch-ctrls button:hover {
+    position: relative;
+}
+
+#instrument-switch-ctrls button[title]:hover:after {
+    content: attr(title);
+    padding: 4pt 8pt;
+    color: var(--pageBg);
+    position: absolute;
+    text-transform: capitalize;
+    left: 0;
+    top: -100%;
+    white-space: nowrap;
+    z-index: 100;
+    -moz-border-radius: 5pt;
+    -webkit-border-radius: 5pt;
+    border-radius: 5pt;
+    -moz-box-shadow: 0pt 0pt 4pt #222;
+    -webkit-box-shadow: 0pt 0pt 4pt #222;
+    box-shadow: 0pt 0pt 4pt #222;
+    background-image: -moz-linear-gradient(top, #eeeeee, #cccccc);
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #eeeeee), color-stop(1, #cccccc));
+    background-image: -webkit-linear-gradient(top, #eeeeee, #cccccc);
+    background-image: -ms-linear-gradient(top, #eeeeee, #cccccc);
+    background-image: -o-linear-gradient(top, #eeeeee, #cccccc);
+}

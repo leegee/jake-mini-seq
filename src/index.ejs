@@ -11,19 +11,21 @@
         <h1>Jakab's Tiny Sequencer</h1>
     </header>
 
-    <main id='scroll-wrapper'></main>
 
-    <section id='instrument-switch-ctrls'></section>
+    <main>
+        <section id='scroll-wrapper'></section>
+        <section id='instrument-switch-ctrls'></section>
+    </main>
 
     <footer id='ctrls'>
         <span id='rewind-ctrl' class='rewind'>◀</span>
         <span id='play-ctrl' class='paused'>❚❚</span>
         <span id='save-ctrl'>💾</span>
         <span id='modal-ctrl' data-micromodal-trigger='modal-settings'>⚙</span>
-        <legend id='tempo-ctrl'>
+        <label id='tempo-ctrl'>
             fast <input alt='Tempo' type='range' id='tempo-ms' min=100 max=1000 step=25 value=${this.tempoMs}> slow
-        </legend>
-        <span>Short notes:<input type='checkbox' id='stop-notes'/></span>
+        </label>
+        <label>Short notes:<input type='checkbox' id='stop-notes'/></label>
     </footer>
 
     <aside id="modal-settings" aria-hidden="true" class='modal'>
