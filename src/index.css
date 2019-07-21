@@ -127,9 +127,9 @@ main {
     border: 2pt solid;
     outline: none;
     font-size: 14pt;
-    width: 18pt;
-    height: 18pt;
-    line-height: 18pt;
+    width: 20pt;
+    height: 20pt;
+    line-height: 14pt;
 }
 
 #instrument-switch-ctrls button.active:before {
