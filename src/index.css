@@ -73,25 +73,18 @@ canvas {
     }
 }
 
-#ctrls label {
-    font-size: 12pt;
-}
-
 #ctrls span {
+    position: relative;
     float: left;
     padding: 0.2em;
     text-align: center;
     color: white;
     margin-left: 1em;
     margin-bottom: 0.5em;
-}
-
-#ctrls span {
-    position: relative;
-    width: 1em;
-    height: 1em;
+    white-space: nowrap;
     line-height: 1em;
     cursor: pointer;
+    vertical-align: middle;
 }
 
 #tempo-ctrl {
