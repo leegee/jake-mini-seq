@@ -67,13 +67,14 @@ canvas {
 
 @media only screen and (min-width: 1000px) {
     #ctrls {
-        font-size: 24pt;
         left: 50%;
         transform: translate(-50%, 0);
+        font-size: 24pt;
     }
 }
 
-#ctrls span {
+#ctrls span, 
+#ctrls legend {
     position: relative;
     float: left;
     padding: 0.2em;
@@ -87,11 +88,12 @@ canvas {
     vertical-align: middle;
 }
 
-#tempo-ctrl {
-    width: auto;
+#ctrls legend {
     font-size: 12pt;
     white-space: nowrap;
 }
+
+/* #tempo-ctrl { } */
 
 #tempo-ctrl>* {
     vertical-align: middle;
@@ -100,7 +102,7 @@ canvas {
 #instrument-switch-ctrls {
     position: fixed;
     text-align: center;
-    bottom: 4em;
+    bottom: 6em;
     z-index: 100;
     font-size: 14pt;
     /* transform-origin: 0 0;

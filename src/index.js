@@ -67,10 +67,6 @@ class JakesMiniSeq {
             { name: 'synth_drum', rootOctave: 1, glyph: '🥁' },
             { name: 'woodblock', rootOctave: 3, glyph: '👏' },
         ],
-        noteSize: {
-            x: 30,
-            y: 20,
-        },
         totalBarsSupported: 12,
         beatsPerBarSupported: 9,
         rootOctave: 3,
@@ -99,7 +95,11 @@ class JakesMiniSeq {
     };
     grid = {
         canvas: undefined,
-        ctx: undefined
+        ctx: undefined,
+        noteSize: {
+            x: 30,
+            y: 20
+        },
     };
     ctrls = {
         playCtrl: null,
@@ -155,10 +155,13 @@ class JakesMiniSeq {
 
         // console.debug('Load', noteLayer.soundListIndex, noteLayer.instrument.name, this.config.instruments[noteLayer.soundListIndex]);
 
-        for (let octave = 0; octave < this.config.totalOctaves; octave++) {
+        const octaveFrom = this.config.instruments[noteLayer.soundListIndex].rootOctave;
+        const octaveTo = (octaveFrom + this.config.totalOctaves);
+
+        for (let octave = octaveFrom; octave < octaveTo; octave++) {
             for (let note = 0; note < this.config.scales.chromatic.length; note++) {
 
-                const noteName = this.config.scales.chromatic[note] + (noteLayer.instrument.rootOctave + octave);
+                const noteName = this.config.scales.chromatic[note] + octave;
 
                 JakesMiniSeq.noteFileExtensions.forEach(ext => {
                     const filePath = JakesMiniSeq.soundsDir + '/' + noteLayer.instrument.name + JakesMiniSeq.instrumentSuffix + '/' + noteName + '.' + ext;
@@ -170,7 +173,7 @@ class JakesMiniSeq {
                             src: [filePath],
                             onload: () => resolve(),
                             onloaderror: (id, err) => {
-                                console.error(id, err);
+                                console.error('Error loading', filePath, id, err);
                                 reject(err);
                             }
                         });
@@ -204,10 +207,10 @@ class JakesMiniSeq {
         this.tick.ctx = this.tick.canvas.getContext('2d');
 
         this.tick.canvas.width = this.grid.canvas.width =
-            this.config.noteSize.x * this.totalBars * this.beatsPerBar;
+            this.grid.noteSize.x * this.totalBars * this.beatsPerBar;
 
         this.tick.canvas.height = this.grid.canvas.height
-            = this.config.noteSize.y * this.config.totalOctaves * this.config.scales[this.scale].length;
+            = this.grid.noteSize.y * this.config.totalOctaves * this.config.scales[this.scale].length;
 
         this.scrollWrapper.style.height = this.tick.canvas.height + 'px';
 
@@ -242,7 +245,7 @@ class JakesMiniSeq {
                 this.grid.ctx.moveTo(x, 0);
                 this.grid.ctx.lineTo(x, this.grid.canvas.height);
                 this.grid.ctx.stroke();
-                x += this.config.noteSize.x;
+                x += this.grid.noteSize.x;
                 beatIndex++;
             }
         }
@@ -254,7 +257,7 @@ class JakesMiniSeq {
         for (let octave = 0; octave < this.config.totalOctaves; octave++) {
             for (let noteInScale = 0; noteInScale < scaleLength; noteInScale++) {
                 this.grid.ctx.beginPath();
-                this.grid.ctx.strokeStyle = "white";
+                this.grid.ctx.strokeStyle = 'white';
                 if (note % scaleLength === 0 && note !== 0) {
                     this.grid.ctx.lineWidth = 2;
                 } else {
@@ -263,7 +266,7 @@ class JakesMiniSeq {
                 this.grid.ctx.moveTo(0, y);
                 this.grid.ctx.lineTo(this.grid.canvas.width, y);
                 this.grid.ctx.stroke();
-                y += this.config.noteSize.y;
+                y += this.grid.noteSize.y;
                 note++;
             }
         }
@@ -283,8 +286,8 @@ class JakesMiniSeq {
         const rect = e.target.getBoundingClientRect();
         const x = e.clientX - rect.left + this.scrollWrapper.scrollLeft;
         const y = this.grid.canvas.height - (e.clientY - rect.top);
-        const beatIndex = parseInt(x / this.config.noteSize.x);
-        const pitchIndex = parseInt(y / this.config.noteSize.y);
+        const beatIndex = parseInt(x / this.grid.noteSize.x);
+        const pitchIndex = parseInt(y / this.grid.noteSize.y);
         this.toggleNote(beatIndex, pitchIndex);
     }
 
@@ -391,10 +394,10 @@ class JakesMiniSeq {
             ];
         }
         this.noteLayers[this.activeInstrument].ctx[method](
-            beatIndex * this.config.noteSize.x,
-            this.grid.canvas.height - ((pitchIndex + 1) * this.config.noteSize.y),
-            this.config.noteSize.x,
-            this.config.noteSize.y
+            beatIndex * this.grid.noteSize.x,
+            this.grid.canvas.height - ((pitchIndex + 1) * this.grid.noteSize.y),
+            this.grid.noteSize.x,
+            this.grid.noteSize.y
         );
     }
 
@@ -422,8 +425,8 @@ class JakesMiniSeq {
     rewindLoop() {
         this.stopLoop();
         this.tick.ctx.clearRect(
-            this.config.noteSize.x * this.tick.now, 0,
-            this.config.noteSize.x,
+            this.grid.noteSize.x * this.tick.now, 0,
+            this.grid.noteSize.x,
             this.tick.canvas.height
         );
         this.tick.previous = undefined;
@@ -432,11 +435,11 @@ class JakesMiniSeq {
     }
 
     nextTick() {
-        const lengthToPlay = this.noteLayers[0].music.length - 1;
+        const lengthToPlay = (this.beatsPerBar * this.totalBars);
 
         if (this.tick.now > 2 && this.tick.now < lengthToPlay - 2) {
             this.scrollWrapper.scrollBy({
-                left: this.config.noteSize.x,
+                left: this.grid.noteSize.x,
                 top: 0,
                 behavior: 'smooth'
             });
@@ -457,8 +460,8 @@ class JakesMiniSeq {
 
         if (this.tick.previous !== undefined) {
             this.tick.ctx.clearRect(
-                this.config.noteSize.x * this.tick.previous, 0,
-                this.config.noteSize.x,
+                this.grid.noteSize.x * this.tick.previous, 0,
+                this.grid.noteSize.x,
                 this.tick.canvas.height
             );
         }
@@ -466,8 +469,8 @@ class JakesMiniSeq {
         this.tick.ctx.globalAlpha = 0.25;
         this.tick.ctx.fillStyle = 'white';
         this.tick.ctx.fillRect(
-            this.config.noteSize.x * this.tick.now, 0,
-            this.config.noteSize.x,
+            this.grid.noteSize.x * this.tick.now, 0,
+            this.grid.noteSize.x,
             this.tick.canvas.height
         );
         this.tick.ctx.globalAlpha = 1;
