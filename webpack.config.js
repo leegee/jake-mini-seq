@@ -5,7 +5,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = (env, argv) => {
-  return {
+  const config = {
     entry: './src/index.js',
     output: {
       filename: 'main.js',
@@ -15,11 +15,6 @@ module.exports = (env, argv) => {
       contentBase: path.join(__dirname, 'dist'),
       compress: true,
       port: 9000
-    },
-    optimization: {
-      minimizer: [new UglifyJsPlugin({
-        sourceMap: argv.mode == 'development' ? true : false,
-      })],
     },
     plugins: [
       new HtmlWebpackPlugin({
@@ -55,4 +50,16 @@ module.exports = (env, argv) => {
       ],
     }
   }
+
+  if (argv.mode !== 'development') {
+    config.optimization = {
+      minimizer: [new UglifyJsPlugin({
+        sourceMap: false
+      })]
+    };
+  } else {
+    config.devtool = 'source-map';
+  }
+
+  return config;
 };

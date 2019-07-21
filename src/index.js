@@ -28,7 +28,9 @@ class NoteLayer {
     constructor(instrument, soundListIndex, totalBarsSupported, beatsPerBarSupported) {
         this.instrument = instrument;
         this.soundListIndex = soundListIndex;
-        this.music = new Array(totalBarsSupported * beatsPerBarSupported);
+        this.music = new Array(
+            (totalBarsSupported * beatsPerBarSupported) - 1
+        );
     }
 }
 
@@ -37,7 +39,6 @@ class JakesMiniSeq {
     static instrumentSuffix = '-mp3';
     static soundsDir = './assets/soundfont/';
     static noteFileExtensions = ['mp3']; // TODO Add ogg for non-Chrome
-    static instruments = SOUND_LIST;
 
     scale = 'major';
     tempoMs = 200;
@@ -45,11 +46,12 @@ class JakesMiniSeq {
     beatsPerBar = 4;
     totalBars = 8;
     config = {
+        fadeDuration: 20,
         instruments: [
             { name: 'acoustic_grand_piano', rootOctave: 3, glyph: '🎹' },
             { name: 'celesta', rootOctave: 3, glyph: '🎹' },
             { name: 'choir_aahs', rootOctave: 3, glyph: '👩‍🎤' },
-            { name: 'electric_bass_pick', rootOctave: 1, glyph: '𝄢' }, 
+            { name: 'electric_bass_pick', rootOctave: 1, glyph: '𝄢' },
             { name: 'slap_bass_1', rootOctave: 1, glyph: '!' },
             { name: 'synth_bass_1', rootOctave: 1, glyph: '𝄢' },
             { name: 'koto', rootOctave: 3, glyph: 'ぁ' },
@@ -60,7 +62,7 @@ class JakesMiniSeq {
             { name: 'pad_1_new_age', rootOctave: 3, glyph: '♒' },
             { name: 'pad_7_halo', rootOctave: 3, glyph: '🎻' },
             { name: 'pad_8_sweep', rootOctave: 3, glyph: '😮' },
-            { name: 'percussive_organ', rootOctave: 3  },
+            { name: 'percussive_organ', rootOctave: 3 },
             { name: 'pizzicato_strings', rootOctave: 3, glyph: '🎻' },
             { name: 'synth_drum', rootOctave: 1, glyph: '🥁' },
             { name: 'woodblock', rootOctave: 3, glyph: '👏' },
@@ -97,8 +99,7 @@ class JakesMiniSeq {
     };
     grid = {
         canvas: undefined,
-        ctx: undefined,
-        music: []
+        ctx: undefined
     };
     ctrls = {
         playCtrl: null,
@@ -152,7 +153,7 @@ class JakesMiniSeq {
 
         this.sounds[noteLayer.soundListIndex] = {};
 
-        console.log('Load', noteLayer.soundListIndex, noteLayer.instrument.name, this.config.instruments[noteLayer.soundListIndex]);
+        // console.debug('Load', noteLayer.soundListIndex, noteLayer.instrument.name, this.config.instruments[noteLayer.soundListIndex]);
 
         for (let octave = 0; octave < this.config.totalOctaves; octave++) {
             for (let note = 0; note < this.config.scales.chromatic.length; note++) {
@@ -162,7 +163,7 @@ class JakesMiniSeq {
                 JakesMiniSeq.noteFileExtensions.forEach(ext => {
                     const filePath = JakesMiniSeq.soundsDir + '/' + noteLayer.instrument.name + JakesMiniSeq.instrumentSuffix + '/' + noteName + '.' + ext;
 
-                    console.debug('Loading instrument %s %s oct %d note %d :', noteLayer.soundListIndex, noteLayer.instrument.name, octave, note, noteName, "\n", filePath);
+                    // console.debug('Loading instrument %s %s oct %d note %d :', noteLayer.soundListIndex, noteLayer.instrument.name, octave, note, noteName, "\n", filePath);
 
                     loading.push(new Promise((resolve, reject) => {
                         this.sounds[noteLayer.soundListIndex][noteName] = new Howl({
@@ -208,16 +209,16 @@ class JakesMiniSeq {
         this.tick.canvas.height = this.grid.canvas.height
             = this.config.noteSize.y * this.config.totalOctaves * this.config.scales[this.scale].length;
 
-        for (let i = 0; i < this.noteLayers.length; i++) {
-            this.noteLayers[i].canvas = document.createElement('canvas');
-            this.noteLayers[i].canvas.classList.add('notes');
-            this.noteLayers[i].ctx = this.noteLayers[i].canvas.getContext('2d');
-            this.noteLayers[i].canvas.width = this.grid.canvas.width;
-            this.noteLayers[i].canvas.height = this.grid.canvas.height;
-            this.noteLayers[i].canvas.addEventListener('click', this.clickGrid.bind(this));
-        }
-
         this.scrollWrapper.style.height = this.tick.canvas.height + 'px';
+
+        for (let noteLayerIndex = 0; noteLayerIndex < this.noteLayers.length; noteLayerIndex++) {
+            this.noteLayers[noteLayerIndex].canvas = document.createElement('canvas');
+            this.noteLayers[noteLayerIndex].canvas.classList.add('notes');
+            this.noteLayers[noteLayerIndex].ctx = this.noteLayers[noteLayerIndex].canvas.getContext('2d');
+            this.noteLayers[noteLayerIndex].canvas.width = this.grid.canvas.width;
+            this.noteLayers[noteLayerIndex].canvas.height = this.grid.canvas.height;
+            this.noteLayers[noteLayerIndex].canvas.addEventListener('click', this.clickGrid.bind(this));
+        }
 
         this.grid.ctx.globalAlpha = 0.5;
 
@@ -226,8 +227,9 @@ class JakesMiniSeq {
 
         for (let bar = 0; bar < this.totalBars; bar++) {
             for (let beatInBar = 0; beatInBar < this.beatsPerBar; beatInBar++) {
-                for (let i = 0; i < this.noteLayers.length; i++) {
-                    this.noteLayers[i].music[beatIndex] = this.noteLayers[i].music[beatIndex] || {};
+
+                for (let noteLayerIndex = 0; noteLayerIndex < this.noteLayers.length; noteLayerIndex++) {
+                    this.noteLayers[noteLayerIndex].music[beatIndex] = this.noteLayers[noteLayerIndex].music[beatIndex] || {};
                 }
 
                 this.grid.ctx.beginPath();
@@ -290,17 +292,19 @@ class JakesMiniSeq {
         const ctrls = document.getElementById('ctrls');
         this.ctrls.playCtrl = document.getElementById('play-ctrl');
         this.ctrls.stopNotes = document.getElementById('stop-notes');
+
         this.instrumentSwitches = document.getElementById('instrument-switch-ctrls')
+        this.instrumentSwitches.addEventListener('click', (e) => {
+            console.log('Change instrument to ', e.target.dataset.instrumentIndex);
+            this.setActiveInstrument(e.target.dataset.instrumentIndex);
+        });
+
         this.config.instruments.forEach((instrument, instrumentIndex) => {
             const ctrl = document.createElement('button');
             ctrl.dataset.instrumentIndex = instrumentIndex;
             ctrl.title = instrument.name.replace(/[-_]/g, ' ');
-            ctrl.innerText = instrument.glyph || '♩'; 
+            ctrl.innerText = instrument.glyph || '♩';
             this.instrumentSwitches.appendChild(ctrl);
-        });
-        this.instrumentSwitches.addEventListener('click', (e) => {
-            console.log('Change instrument to ', e.target.dataset.instrumentIndex);
-            this.setActiveInstrument(e.target.dataset.instrumentIndex);
         });
 
         const beatsPerBarCtrl = document.getElementById('beats-per-bar-ctrl');
@@ -364,6 +368,8 @@ class JakesMiniSeq {
         const noteName = this.config.scales[this.scale][note] + (rootOctave + octave);
         let method;
 
+        console.log('TOGGLE NOTE', this.activeInstrument, beatIndex, noteName, pitchIndex, this.noteLayers[this.activeInstrument].music[beatIndex][noteName]);
+
         if (this.noteLayers[this.activeInstrument].music[beatIndex][noteName] !== undefined) {
             delete this.noteLayers[this.activeInstrument].music[beatIndex][noteName];
             method = 'clearRect';
@@ -373,7 +379,6 @@ class JakesMiniSeq {
             this.sounds[this.activeInstrument][noteName].play();
         }
 
-        console.log('INST %s %s  NOTE', this.activeInstrument, method, beatIndex, noteName, pitchIndex, this.noteLayers[this.activeInstrument].music[beatIndex][noteName]);
         this.drawNote(method, beatIndex, pitchIndex);
     }
 
@@ -417,11 +422,6 @@ class JakesMiniSeq {
     rewindLoop() {
         this.stopLoop();
         this.tick.ctx.clearRect(
-            this.config.noteSize.x * this.tick.previous, 0,
-            this.config.noteSize.x,
-            this.tick.canvas.height
-        );
-        this.tick.ctx.clearRect(
             this.config.noteSize.x * this.tick.now, 0,
             this.config.noteSize.x,
             this.tick.canvas.height
@@ -432,8 +432,9 @@ class JakesMiniSeq {
     }
 
     nextTick() {
-        const lengthToPlay = this.totalBars * this.beatsPerBar; // this.notes.music.length;
-        if (this.tick.now > 4 && this.tick.now < lengthToPlay - 4) {
+        const lengthToPlay = this.noteLayers[0].music.length - 1;
+
+        if (this.tick.now > 2 && this.tick.now < lengthToPlay - 2) {
             this.scrollWrapper.scrollBy({
                 left: this.config.noteSize.x,
                 top: 0,
@@ -441,12 +442,14 @@ class JakesMiniSeq {
             });
         }
 
-        this.noteLayers.forEach( (noteLayer, noteLayerIndex) => {
+        this.noteLayers.forEach((noteLayer, noteLayerIndex) => {
             if (this.ctrls.stopNotes.checked && typeof this.tick.previous !== 'undefined') {
                 Object.keys(this.noteLayers[noteLayerIndex].music[this.tick.previous]).forEach(noteName => {
-                    this.sounds[noteLayerIndex][noteName].stop();
+                    this.sounds[noteLayerIndex][noteName] // .stop();
+                        .fade(127, 0, this.config.fadeDuration);
                 });
             }
+
             Object.keys(this.noteLayers[noteLayerIndex].music[this.tick.now]).forEach(noteName => {
                 this.sounds[noteLayerIndex][noteName].play();
             });
@@ -472,7 +475,8 @@ class JakesMiniSeq {
         this.tick.previous = this.tick.now;
 
         this.tick.now++;
-        if (this.tick.now >= lengthToPlay) {
+
+        if (this.tick.now === lengthToPlay) {
             this.tick.now = 0;
             this.scrollWrapper.scrollLeft = 0;
         }

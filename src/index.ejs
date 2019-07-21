@@ -21,7 +21,7 @@
         <span id='save-ctrl'>💾</span>
         <span id='modal-ctrl' data-micromodal-trigger='modal-settings'>⚙</span>
         <span id='tempo-ctrl'>
-            fast<input alt='Tempo' type='range' id='tempo-ms' min=10 max=1000 step=25 value=${this.tempoMs}>slow
+            fast<input alt='Tempo' type='range' id='tempo-ms' min=100 max=1000 step=25 value=${this.tempoMs}>slow
         </span>
         <label>Short notes:<input type='checkbox' id='stop-notes'/></label>
     </footer>
@@ -33,13 +33,6 @@
                     <h2 id="modal-settings-title"> Settings </h2>
                 </header>
                 <div id="modal-settings-content">
-
-                    <fieldset>
-                        <label>Instrument</label>
-                        <select id='instrument-ctrl'>
-                            <option value='acoustic_grand_piano'>Piano</option>
-                        </select>
-                    </fieldset>
 
                     <fieldset>
                         <label>Beats per bar</label>
