@@ -5,6 +5,7 @@
     --buttonBg: white;
     --buttonFg: #421383;
     color: white;
+    box-sizing: border-box;
 }
 
 *:focus {
