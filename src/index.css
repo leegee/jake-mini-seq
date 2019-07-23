@@ -5,7 +5,6 @@
     --buttonBg: white;
     --buttonFg: #421383;
     color: white;
-    box-sizing: border-box;
 }
 
 *:focus {
@@ -52,7 +51,7 @@ canvas {
 .noteLayer {
     z-index: 50;
     opacity: 0.5;
-    border: 4pt solid;
+    border-bottom: 4pt solid;
 }
 
 .activeInstrument {
