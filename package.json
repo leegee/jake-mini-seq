@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "build": " npx webpack --mode=production --config webpack.config.js",
-    "dev": "NODE_ENV='development' webpack-dev-server",
+    "dev": "cross-env NODE_ENV='development' webpack-dev-server",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -22,6 +22,7 @@
     "@babel/preset-env": "^7.5.4",
     "babel-loader": "^8.0.6",
     "copy-webpack-plugin": "^5.0.3",
+    "cross-env": "^5.2.0",
     "css-loader": "^3.0.0",
     "html-webpack-plugin": "^4.0.0-beta.7",
     "style-loader": "^0.23.1",
