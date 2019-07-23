@@ -10,6 +10,7 @@
 * Replace DOM display with multiple canvases
 * Capture events on canvas
 * Use tiny-modal to input settings
+* Save 'score' via data URI
 
 ## Day 3
 
