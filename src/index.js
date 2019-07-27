@@ -40,7 +40,7 @@ class JakesMiniSeq {
     static dataUriPrefix = 'data:text/plain;base64,';
     static instrumentSuffix = '-mp3';
     static soundsDir = './assets/soundfont/';
-    static noteFileExtensions = ['mp3']; // TODO Add ogg for non-Chrome
+    static noteFileExtensions = ['mp3'];
 
     scale = 'major';
     tempoMs = 200;
@@ -139,8 +139,8 @@ class JakesMiniSeq {
         MicroModal.init();
         this.loadSounds();
         this.renderGrid();
-        this.makeCtrls();
         this.urlTogrid();
+        this.makeCtrls();
         this.setActiveInstrument(this.activeInstrument);
         this.stopLoop();
     }
@@ -243,7 +243,6 @@ class JakesMiniSeq {
             this.noteLayers[noteLayerIndex].ctx = this.noteLayers[noteLayerIndex].canvas.getContext('2d');
             this.noteLayers[noteLayerIndex].canvas.width = this.grid.canvas.width;
             this.noteLayers[noteLayerIndex].canvas.height = this.grid.canvas.height;
-            this.noteLayers[noteLayerIndex].canvas.addEventListener('click', this.clickGrid.bind(this));
         }
 
         this.grid.ctx.globalAlpha = 0.5;
@@ -393,6 +392,10 @@ class JakesMiniSeq {
             else if (e.key === ' ') {
                 this.toggleLoop();
             }
+        });
+
+        window.addEventListener('click', (e) => {
+            this.clickGrid(e);
         });
     }
 
