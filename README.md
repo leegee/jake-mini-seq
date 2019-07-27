@@ -11,10 +11,12 @@
 * Capture events on canvas
 * Use tiny-modal to input settings
 * Save 'score' via data URI
+* Added colours from Illy
 
 ## Day 3
 
 * Multiple instruments
+* Colour per instrument via HSL based on Illy's tone
 
 ## Day 4 
 

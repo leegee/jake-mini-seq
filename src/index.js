@@ -88,6 +88,9 @@ class JakesMiniSeq {
             phyrigian: [
                 'E', 'F', 'G', 'A', 'B'
             ],
+            pentatonic: [
+                'E', 'G', 'A', 'B', 'D'
+            ],
         }
     };
     noteLayers = [];
@@ -232,7 +235,7 @@ class JakesMiniSeq {
         this.tick.canvas.height = this.grid.canvas.height
             = this.grid.noteSize.y * this.config.totalOctaves * this.config.scales[this.scale].length;
 
-        this.scrollWrapper.style.height = (this.tick.canvas.height + this.config.scrollWrapperTotalBorders) +  'px';
+        this.scrollWrapper.style.height = (this.tick.canvas.height + this.config.scrollWrapperTotalBorders) + 'px';
 
         for (let noteLayerIndex = 0; noteLayerIndex < this.noteLayers.length; noteLayerIndex++) {
             this.noteLayers[noteLayerIndex].canvas = document.createElement('canvas');
