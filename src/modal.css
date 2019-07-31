@@ -11,7 +11,7 @@
     font-size: 24pt;
 }
 
-#modal-settings-inner {
+.modal-inner {
     background-color: #421383;
     position: relative;
     top: 2em;

@@ -20,21 +20,22 @@
     <footer id='ctrls'>
         <span id='rewind-ctrl' class='rewind'>◀</span>
         <span id='play-ctrl' class='paused'>❚❚</span>
-        <span id='save-ctrl'>💾</span>
-        <span id='modal-ctrl' data-micromodal-trigger='modal-settings'>⚙</span>
+        <!-- <span id='save-ctrl'>💾</span> -->
+        <span id='save-modal-ctrl' data-micromodal-trigger='modal-save'>💾</span>
+        <span id='settings-modal-ctrl' data-micromodal-trigger='modal-settings'>⚙</span>
         <label id='tempo-ctrl'>
             fast <input alt='Tempo' type='range' id='tempo-ms' min=100 max=1000 step=25 value=${this.tempoMs}> slow
         </label>
-        <label>Short notes:<input type='checkbox' id='stop-notes'/></label>
+        <label>Short notes:<input type='checkbox' id='stop-notes' /></label>
     </footer>
 
     <aside id="modal-settings" aria-hidden="true" class='modal'>
         <div tabindex="-1" data-micromodal-close>
-            <div id='modal-settings-inner' role="dialog" aria-modal="true" aria-labelledby="modal-settings-title">
+            <div class='modal-inner' role="dialog" aria-modal="true" aria-labelledby="modal-settings-title">
                 <header>
-                    <h2 id="modal-settings-title"> Settings </h2>
+                    <h2> Settings </h2>
                 </header>
-                <div id="modal-settings-content">
+                <div class="modal-content">
 
                     <fieldset>
                         <label>Beats per bar</label>
@@ -62,6 +63,27 @@
                         </select>
                     </fieldset>
 
+                </div>
+
+                <footer>
+                    <button aria-label="Close modal" data-micromodal-close>Close</button>
+                </footer>
+            </div>
+        </div>
+    </aside>
+
+    <aside id="modal-save" aria-hidden="true" class='modal'>
+        <div tabindex="-1" data-micromodal-close>
+            <div class='modal-inner' role="dialog" aria-modal="true" aria-labelledby="modal-settings-title">
+                <header>
+                    <h2> Save </h2>
+                </header>
+                <div class="content">
+
+                    <fieldset>
+                        <label>Your URL</label>
+                        <input type='text' id='save-modal-uri'>
+                    </fieldset>
                 </div>
 
                 <footer>

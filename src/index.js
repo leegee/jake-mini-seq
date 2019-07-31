@@ -56,18 +56,18 @@ class JakesMiniSeq {
             { name: 'celesta', rootOctave: 4, glyph: '🎹' },
             { name: 'choir_aahs', rootOctave: 3, glyph: '👩‍🎤' },
             { name: 'electric_bass_pick', rootOctave: 1, glyph: '𝄢', volume: 1 },
-            { name: 'slap_bass_1', rootOctave: 1, glyph: '!', volume: 1 },
-            { name: 'synth_bass_1', rootOctave: 1, glyph: '𝄢' },
             { name: 'koto', rootOctave: 4, glyph: 'ぁ' },
             { name: 'lead_2_sawtooth', rootOctave: 3, glyph: '🎹' },
-            { name: 'lead_7_fifths', rootOctave: 3, glyph: '🎹' },
+            { name: 'lead_7_fifths', rootOctave: 3, glyph: '🎻' },
             { name: 'ocarina', rootOctave: 4, glyph: '🎺' },
             { name: 'overdriven_guitar', rootOctave: 3, glyph: '🎸' },
             { name: 'pad_1_new_age', rootOctave: 3, glyph: '♒' },
             { name: 'pad_7_halo', rootOctave: 3, glyph: '🎻' },
             { name: 'pad_8_sweep', rootOctave: 3, glyph: '😮' },
             { name: 'percussive_organ', rootOctave: 3 },
-            { name: 'pizzicato_strings', rootOctave: 3, glyph: '🎻' },
+            // { name: 'pizzicato_strings', rootOctave: 3, glyph: '🎻' },
+            { name: 'slap_bass_1', rootOctave: 1, glyph: '!', volume: 1 },
+            { name: 'synth_bass_1', rootOctave: 1, glyph: '𝄢' },
             { name: 'synth_drum', rootOctave: 1, glyph: '🥁' },
             { name: 'woodblock', rootOctave: 3, glyph: '👏' },
         ],
@@ -139,7 +139,7 @@ class JakesMiniSeq {
         MicroModal.init();
         this.loadSounds();
         this.renderGrid();
-        this.urlTogrid();
+        this.url2music();
         this.makeCtrls();
         this.setActiveInstrument(this.activeInstrument);
         this.stopLoop();
@@ -302,7 +302,7 @@ class JakesMiniSeq {
         }
     }
 
-    clickGrid(e) {
+    clickNoteLayer(e) {
         const rect = e.target.getBoundingClientRect();
         const x = e.clientX - rect.left + this.scrollWrapper.scrollLeft;
         const y = this.grid.canvas.height - (e.clientY - rect.top);
@@ -362,26 +362,26 @@ class JakesMiniSeq {
             this.renderNotesArray();
         });
 
-        ctrls.addEventListener('click', (e) => {
+        window.addEventListener('click', (e) => {
             if (e.target.classList.contains('playing')) {
                 this.stopLoop();
             }
             else if (e.target.classList.contains('paused')) {
                 this.playLoop();
             }
-            else if (e.target.id === 'save-ctrl') {
-                this.showSave();
+            else if (e.target.id === 'save-modal-ctrl') {
+                this.music2url();
             }
             else if (e.target.id === 'rewind-ctrl') {
                 this.rewindLoop();
             }
             else if (e.target.id === 'tempo-ms') {
-                console.log(e.target.value)
                 this.tempoMs = Number(e.target.value);
                 this.stopLoop();
                 this.playLoop();
-            } else {
-                console.log(e.target.id)
+            }
+            else if (e.target.classList.contains('noteLayer')) {
+                this.clickNoteLayer(e);
             }
         });
 
@@ -392,10 +392,6 @@ class JakesMiniSeq {
             else if (e.key === ' ') {
                 this.toggleLoop();
             }
-        });
-
-        window.addEventListener('click', (e) => {
-            this.clickGrid(e);
         });
     }
 
@@ -408,6 +404,8 @@ class JakesMiniSeq {
     }
 
     toggleNote(beatIndex, pitchIndex) {
+        console.debug('Enter toggleNote: beat:%d pitch:%d inst:%s', beatIndex, pitchIndex, this.activeInstrument);
+
         const rootOctave = this.noteLayers[this.activeInstrument].instrument.rootOctave;
 
         const octave = parseInt(pitchIndex / this.config.scales[this.scale].length);
@@ -533,20 +531,25 @@ class JakesMiniSeq {
         }
     }
 
-    showSave() {
-        let uri = document.location.protocol + '//' + document.location.host +
-            document.location.pathname + '?' + btoa(
-                JakesMiniSeq.dataUriPrefix + JSON.stringify({
-                    noteLayers: this.noteLayers,
-                    scale: this.scale,
-                    tempoMs: this.tempoMs
-                })
-            );
+    music2url() {
+        const music = this.noteLayers.filter(noteLayer => {
+            const totalNotes = noteLayer.music.reduce((acc, val) => acc += Object.keys(val).length, 0);
+            return totalNotes;
+        }).map(_ => _.music);
 
-        window.prompt('Copy and paste this link to replay your tune', uri);
+        const saveData = JSON.stringify({
+            music,
+            scale: this.scale,
+            tempoMs: this.tempoMs
+        });
+
+        let uri = document.location.protocol + '//' + document.location.host +
+            document.location.pathname + '?' + btoa(JakesMiniSeq.dataUriPrefix + saveData);
+
+        document.getElementById('save-modal-uri').value = uri;
     }
 
-    urlTogrid() {
+    url2music() {
         if (document.location.search.length > 1) {
             try {
                 const jsonStr = atob(
@@ -557,7 +560,11 @@ class JakesMiniSeq {
 
                 this.totalBars = fromUri.totalBars;
                 this.beatsPerBar = fromUri.beatsPerBar;
-                this.noteLayers = fromUri.noteLayers;
+
+                fromUri.music.forEach((noteLayerMusic, index) => {
+                    this.noteLayers[index].music = noteLayerMusic;
+                });
+
                 this.scale = fromUri.scale;
                 this.tempoMs = fromUri.tempoMs;
 
@@ -573,12 +580,14 @@ class JakesMiniSeq {
 
             catch (e) {
                 alert('The document location entered does not contain valid music.');
+                console.error(e);
             }
         }
     }
 
     renderNotesArray() {
         for (let i = 0; i < this.noteLayers.length; i++) {
+            this.activeInstrument = i;
             this.noteLayers[i].music.forEach((tick, beatIndex) => {
                 if (tick) {
                     Object.keys(tick).forEach(noteName => {
