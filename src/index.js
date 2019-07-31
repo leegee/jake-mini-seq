@@ -143,6 +143,7 @@ class JakesMiniSeq {
         this.makeCtrls();
         this.setActiveInstrument(this.activeInstrument);
         this.stopLoop();
+        document.body.classList.remove('loading');
     }
 
     setActiveInstrument(activeInstrument) {
