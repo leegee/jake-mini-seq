@@ -86,8 +86,10 @@
                 <div class="content">
 
                     <fieldset>
-                        <label>Your URL</label>
-                        <input type='text' id='save-modal-uri'>
+                        <p>Copy and paste this link to share or replay your music:</p>
+                        <p>
+                            <input type='text' id='save-modal-uri' style='width:100%; font-size: 150%;' click='this.select();this.setSelectionRange(0, this.value.length)'>
+                        </p>
                     </fieldset>
                 </div>
 
