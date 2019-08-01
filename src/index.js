@@ -533,11 +533,10 @@ class JakesMiniSeq {
     }
 
     music2url() {
-        // const music = this.noteLayers.filter(noteLayer => {
-        //     return noteLayer.music.reduce((acc, val) => acc += Object.keys(val).length, 0);
-        // }).map(_ => _.music);
-
-        const music = this.noteLayers.map(_ => _.music);
+        // Only music, only layers with values
+        const music = this.noteLayers
+            .map(noteLayer => noteLayer.music)
+            .map(music => music.reduce((acc, curr) => acc + Object.keys(curr).length, 0) ? music : []);
 
         const saveData = JSON.stringify({
             music,
