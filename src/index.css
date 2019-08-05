@@ -4,6 +4,7 @@
     --pageBg: #421383;
     --buttonBg: white;
     --buttonFg: #421383;
+    --instrument-button-size: 14pt;
     color: white;
 }
 
@@ -21,6 +22,14 @@ h2 {
     font-family: 'Sunshiney', cursive;
     opacity: 0.5;
     text-align: center;
+}
+
+@media only screen and (max-width: 600px) {
+    header h1 {
+        z-index: 1;
+        position: absolute;
+        opacity: 0.3;
+    }
 }
 
 #scroll-wrapper {
@@ -111,10 +120,23 @@ main {
 #instrument-switch-ctrls {
     position: fixed;
     z-index: 100;
-    font-size: 14pt;
+    font-size: var(--instrument-button-size);
+    line-height: var(--instrument-button-size);
     width: 100%;
     text-align: center;
     margin-top: 1rem;
+}
+
+@media only screen and (max-width: 600px) {
+    #instrument-switch-ctrls {
+        -webkit-overflow-scrolling: touch;
+        width: auto;
+        height: calc( var(--instrument-button-size) + 4pt );
+        display: flex;
+        flex-wrap: nowrap;
+        overflow: auto;
+        position: relative;
+    }
 }
 
 #instrument-switch-ctrls button {
@@ -126,9 +148,9 @@ main {
     padding: 0;
     border: 2pt solid;
     outline: none;
-    font-size: 14pt;
-    width: 20pt;
-    height: 20pt;
+    font-size: var(--instrument-button-size);
+    min-width: calc( var(--instrument-button-size) + 4pt);
+    max-height: calc( var(--instrument-button-size) + 4pt);
     line-height: 14pt;
 }
 
